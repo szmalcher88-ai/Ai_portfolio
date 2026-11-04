@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "finalne",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5200", "--strictPort"],
+      "port": 5200
+    },
+    {
+      "name": "ref-p4",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["C:/Users/SzMal/Portfolio 4/v5-src/serve.py", "4335", "C:/Users/SzMal/Portfolio 4/site-v5"],
+      "port": 4335
+    },
+    {
+      "name": "ref-p5",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5175", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 5"],
+      "port": 5175
+    },
+    {
+      "name": "ref-p7",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5391", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 7"],
+      "port": 5391
+    },
+    {
+      "name": "ref-p2",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4390", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 2/site"],
+      "port": 4390
+    }
+  ]
+}

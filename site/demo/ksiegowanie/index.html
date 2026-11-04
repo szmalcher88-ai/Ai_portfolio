@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dzień z LedgerPilot</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../demo.css">
+<script>if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add("embed");</script>
+<style>
+/* Layout: a player (the real app at 1280×800, scaled to fit) with a caption bar, beside a rail of the day's chapters */
+:root {
+  --bg: #edf2f3;
+  --fg: #172e38;
+  --muted: #536d77;
+  --panel: #ffffff;
+  --line: #d3dfe3;
+  --accent: #18766d;
+  --accent-fg: #ffffff;
+  --accent-soft: #e3f1ef;
+  --mark: #e5ad49;
+  --font: Inter, "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1b21; --fg: #e2ecef; --muted: #98aeb7; --panel: #152830; --line: #27414b;
+    --accent: #4fb5a8; --accent-fg: #0e1b21; --accent-soft: #1b3a3c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1b21; --fg: #e2ecef; --muted: #98aeb7; --panel: #152830; --line: #27414b;
+  --accent: #4fb5a8; --accent-fg: #0e1b21; --accent-soft: #1b3a3c; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font); }
+.wrap {
+  max-width: 1500px; margin: 0 auto; box-sizing: border-box;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px;
+}
+.intro { display: flex; flex-direction: column; gap: 8px; max-width: 70ch; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.intro h1 { margin: 0; font-size: clamp(28px, 4vw, 44px); line-height: 1.08; letter-spacing: -0.03em; text-wrap: balance; }
+.intro p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--muted); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; align-items: start; }
+@media (max-width: 1000px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.player { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.screen { position: relative; width: 100%; border-radius: 12px 12px 0 0; overflow: hidden; background: #f4f7f8; box-shadow: 0 18px 50px rgba(10, 30, 38, 0.18); }
+.stage { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; transform-origin: 0 0; }
+.controls {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--panel); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; padding: 12px 14px;
+}
+.cbtn {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px;
+}
+.cbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); min-width: 116px; justify-content: center; }
+.cbtn:focus-visible, .chap:focus-visible { outline: 3px solid var(--mark); outline-offset: 2px; }
+.cbtn svg { width: 16px; height: 16px; flex: none; }
+.segs { flex: 1 1 220px; display: flex; gap: 4px; min-width: 160px; }
+.seg { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; border: 0; padding: 0; cursor: pointer; }
+.seg i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+.caption { padding: 18px 4px 0; display: flex; flex-direction: column; gap: 6px; min-height: 92px; }
+.caption .chip { align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.caption h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+.caption p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--muted); max-width: 75ch; }
+.rail { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.railh { margin: 0 0 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.chap {
+  width: 100%; text-align: left; font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 12px; cursor: pointer; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 2px 10px; align-items: center;
+}
+.chap .n { grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; background: var(--line); color: var(--fg); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.chap b { font-size: 14px; font-weight: 600; }
+.chap span { font-size: 12px; color: var(--muted); }
+.chap.on { border-color: var(--accent); background: var(--accent-soft); }
+.chap.on .n, .chap.done .n { background: var(--accent); color: var(--accent-fg); }
+.note { font-size: 13px; line-height: 1.5; color: var(--muted); margin: 6px 2px 0; }
+
+/* ——— The app inside the stage: LedgerPilot's own look, light only ——— */
+#app { position: absolute; inset: 0; font: 14px/1.5 Inter, "Segoe UI", Arial, sans-serif; color: #172e38; background: #f4f7f8; overflow: hidden; }
+#app * { box-sizing: border-box; }
+:where(#app p, #app h1, #app h2, #app h3) { margin: 0; }
+.lp { display: flex; height: 100%; }
+.side { width: 220px; flex: none; background: #142f39; color: #bad0d6; padding: 24px 14px; display: flex; flex-direction: column; gap: 34px; }
+.brand { display: flex; align-items: center; gap: 9px; color: #fff; font-size: 19px; font-weight: 600; }
+.mk { width: 34px; height: 34px; border-radius: 7px; background: #51b6a8; color: #12353b; display: grid; place-items: center; font-size: 15px; font-weight: 800; }
+.brand sup { font-size: 10px; color: #8ecec2; align-self: flex-start; }
+.nav { display: flex; flex-direction: column; gap: 6px; }
+.nav div { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; }
+.nav div.on { background: #284953; color: #fff; box-shadow: inset 3px 0 0 #51b6a8; }
+.nav i { font-style: normal; width: 20px; font-size: 16px; }
+.nav b { margin-left: auto; min-width: 20px; height: 20px; border-radius: 10px; background: #b5643c; color: #fff; font-size: 11px; display: grid; place-items: center; padding: 0 5px; }
+.colm { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.top { height: 60px; flex: none; background: #fff; border-bottom: 1px solid #dce5e8; display: flex; align-items: center; gap: 12px; padding: 0 24px; font-size: 12px; position: relative; z-index: 3; }
+.sel { border: 1px solid #bccdd3; border-radius: 5px; padding: 7px 12px; font-weight: 500; display: flex; gap: 18px; }
+.grow { flex: 1; }
+.pill { padding: 4px 10px; border-radius: 999px; font-size: 11px; white-space: nowrap; }
+.pill.ai { border: 1px solid #dce5e8; color: #4d6470; }
+.pill.demo { background: #fbefda; color: #87601e; }
+.pill.wait { background: #e5f0f5; color: #28657f; font-weight: 600; font-size: 12px; padding: 6px 12px; }
+.waitwrap { position: relative; }
+.waitmenu { position: absolute; top: calc(100% + 8px); right: 0; width: 520px; background: #fff; border: 1px solid #dce5e8; border-radius: 8px; box-shadow: 0 10px 24px rgba(17, 43, 53, 0.16); padding: 8px; }
+.waitmenu div { padding: 8px 10px; font-size: 12px; font-weight: 600; color: #18766d; border-radius: 6px; }
+.who { line-height: 1.25; } .who b { display: block; font-weight: 600; } .who span { color: #657984; font-size: 11px; }
+.btn { border: 1px solid #18766d; background: #18766d; color: #fff; padding: 9px 15px; border-radius: 6px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.btn.sec { background: #fff; color: #172e38; border-color: #bccdd3; }
+.btn.small { padding: 6px 11px; font-size: 12px; }
+.btn.dis { opacity: 0.45; }
+.main { flex: 1; overflow: hidden; padding: 24px 30px 60px; }
+.trow { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+.trow h1 { font-size: 28px; font-weight: 650; letter-spacing: -0.9px; }
+.addwrap { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; font-size: 11px; color: #657984; }
+.addwrap u { color: #18766d; }
+.panel { background: #fff; border: 1px solid #dce5e8; border-radius: 8px; padding: 20px 22px; margin-bottom: 18px; }
+.panel h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.panel h3 { font-size: 15px; font-weight: 700; }
+.mut { color: #657984; }
+.sm { font-size: 12px; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.tile { background: #fff; border: 1px solid #dce5e8; border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.tile span { font-size: 12px; color: #657984; }
+.tile b { font-size: 32px; font-weight: 500; line-height: 1; }
+.chart { position: relative; height: 210px; margin: 16px 0 6px 50px; border-left: 0; }
+.gl { position: absolute; left: 0; right: 0; height: 1px; background: #e8eef0; }
+.gl span { position: absolute; left: -50px; top: -8px; width: 44px; text-align: right; font-size: 10px; color: #657984; }
+.bars { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; }
+.bar { justify-self: center; width: 26px; background: #0b8a7c; border-radius: 3px 3px 0 0; position: relative; }
+.bar.hi { background: #0b6b5f; }
+.xl { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-left: 50px; font-size: 11px; color: #657984; text-align: center; }
+.tip { position: absolute; right: 70px; top: -6px; background: #fff; border: 1px solid #dce5e8; border-radius: 6px; padding: 9px 12px; font-size: 11px; line-height: 1.6; box-shadow: 0 6px 18px rgba(17, 43, 53, 0.12); z-index: 2; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.hb { display: grid; grid-template-columns: 170px minmax(0, 1fr) 72px; gap: 9px 12px; align-items: center; font-size: 12px; margin-top: 10px; }
+.hb .tr { height: 8px; border-radius: 4px; background: #edf1f3; display: flex; overflow: hidden; }
+.hb .tr i { background: #18766d; }
+.r { text-align: right; } .nw { white-space: nowrap; }
+.askbox input, .field { width: 100%; border: 1px solid #bccdd3; border-radius: 5px; padding: 9px 11px; font: inherit; font-size: 13px; background: #fff; color: #172e38; min-height: 38px; }
+.ph { color: #8a9ca3; }
+.askrow { display: flex; gap: 8px; margin-top: 12px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.chips span { border: 1px solid #bccdd3; border-radius: 6px; padding: 5px 9px; font-size: 11px; font-weight: 600; }
+.answer { margin-top: 14px; background: #f5f3fc; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.answer table { border-collapse: collapse; width: 360px; background: #fff; border-radius: 6px; }
+.answer td { padding: 7px 12px; border-bottom: 1px solid #edf1f3; }
+.list { padding: 0; overflow: hidden; }
+.filters { display: flex; align-items: center; gap: 12px; padding: 16px 18px; }
+.filters .field { width: 300px; }
+.filters .stg { border: 1px solid #bccdd3; border-radius: 5px; padding: 9px 12px; font-size: 13px; }
+.cnt { margin-left: auto; font-size: 12px; color: #657984; }
+.tbl { font-size: 12px; }
+.tbl > div { display: grid; grid-template-columns: minmax(0, 1.6fr) 100px 130px minmax(0, 1.5fr) 110px; }
+.tbl span { padding: 11px 12px; border-bottom: 1px solid #e3eaec; display: flex; flex-direction: column; justify-content: center; }
+.tbl .hd span { font-size: 10px; font-weight: 600; color: #657984; letter-spacing: 0.04em; padding: 9px 12px; border-top: 1px solid #e3eaec; }
+.tbl b { font-weight: 600; color: #142f39; font-size: 13px; }
+.tbl small { color: #657984; font-size: 11px; }
+.tbl > div[data-hover] span { background: #fff8e8; }
+.badge { align-self: flex-start; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.b-app { background: #e5f0f5; color: #28657f; } .b-ok { background: #def1e8; color: #25664e; }
+.b-cla { background: #fbefda; color: #87601e; } .b-unr { background: #f9e6e4; color: #a4453c; }
+.b-cls { background: #edf1f3; color: #566f79; }
+.report { border-left: 4px solid #cb9741; }
+.rtab { display: grid; grid-template-columns: 120px minmax(0, 1fr); font-size: 12px; margin: 12px 0; }
+.rtab span { padding: 9px 12px; border-bottom: 1px solid #e3eaec; }
+.rtab .h { background: #f4f7f8; font-size: 10px; font-weight: 600; color: #657984; }
+.back { font-size: 13px; color: #657984; display: inline-block; margin-bottom: 8px; }
+.doch { font-size: 26px; font-weight: 650; letter-spacing: -0.8px; margin-bottom: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.src { background: #edf2f4; }
+.ph2 { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dce5e8; padding-bottom: 11px; margin-bottom: 14px; }
+.paper { background: #fff; border: 1px solid #dce5e8; padding: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.eb { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #4d6470; }
+.paper h3 { font-size: 20px !important; margin: 4px 0; }
+.lines { display: grid; grid-template-columns: minmax(0, 1fr) 46px 84px 70px; font-size: 11px; margin-top: 6px; }
+.lines span { padding: 7px 0; border-bottom: 1px solid #e3eaec; }
+.lines .h { font-size: 9px; font-weight: 600; color: #657984; }
+.sums { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; font-size: 13px; margin-top: 8px; }
+.steps { display: flex; gap: 8px; margin: 2px 0 14px; }
+.steps div { flex: 1; border: 1px solid #dce5e8; border-radius: 6px; padding: 8px 10px; font-size: 12px; color: #657984; display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+.steps div:first-child { flex: 1.5; }
+.steps span { width: 20px; height: 20px; border-radius: 50%; background: #edf1f3; display: grid; place-items: center; font-weight: 700; font-size: 11px; flex: none; }
+.steps .cur { border-color: #18766d; color: #172e38; font-weight: 600; }
+.steps .cur span { background: #18766d; color: #fff; }
+.steps .done { color: #25664e; } .steps .done span { background: #def1e8; }
+.wnma { display: grid; grid-template-columns: minmax(0, 1fr) 100px 100px; font-size: 13px; }
+.wnma span { padding: 10px 10px; border-bottom: 1px solid #e3eaec; }
+.wnma .h { background: #f4f7f8; font-size: 10px; font-weight: 600; color: #657984; padding: 8px 10px; }
+.wnma .f { background: #f4f7f8; font-size: 11px; font-weight: 600; color: #4d6470; }
+.expl { font-size: 11px; color: #4d6470; margin: 10px 0 14px; line-height: 1.5; }
+.approval { background: #f4f7f8; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.chk { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.box { width: 16px; height: 16px; border: 1.5px solid #8ea4ac; border-radius: 3px; background: #fff; display: grid; place-items: center; flex: none; }
+.box.on { background: #18766d; border-color: #18766d; }
+.box.on::after { content: ""; width: 8px; height: 4px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+.ok { color: #25664e; font-weight: 600; font-size: 13px; }
+.ok u { color: #18766d; }
+.recon { border: 1px solid #c9dde6; background: #f6fafc; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.why { background: #fff3df; border-left: 3px solid #cb9741; padding: 12px 14px; font-size: 12px; line-height: 1.55; display: flex; flex-direction: column; gap: 6px; }
+.why .todo { color: #5b4a1a; font-weight: 600; }
+.det { border: 1px solid #dce5e8; border-radius: 8px; padding: 12px 14px; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 12px; }
+.det .sum { color: #18766d; font-weight: 600; font-size: 12px; }
+.resolved { background: #e8f5ef; border: 1px solid #b8dfcb; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; color: #1d4f3c; }
+.fr { border-top: 1px solid #dce5e8; margin-top: 16px; padding-top: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 12px; }
+.fr h3 { font-size: 14px !important; }
+.lbl { display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+.selbox { border: 1px solid #bccdd3; border-radius: 5px; padding: 9px 11px; font-size: 13px; background: #fff; display: flex; justify-content: space-between; position: relative; }
+.opts { position: absolute; left: -1px; right: -1px; top: 100%; background: #fff; border: 1px solid #bccdd3; border-radius: 0 0 6px 6px; box-shadow: 0 10px 22px rgba(17, 43, 53, 0.15); z-index: 4; font-size: 12px; }
+.opts div { padding: 7px 11px; }
+.opts div[data-hover] { background: #18766d; color: #fff; }
+.rev { border: 1px solid #c9dde6; background: #f6fafc; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.rev small { font-size: 11px; color: #4d6470; }
+.rev.acc { background: #e8f5ef; border-color: #b8dfcb; }
+.rtable { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); font-size: 12px; margin-top: 8px; }
+.rtable span { padding: 9px 12px; border-bottom: 1px solid #e3eaec; }
+.rtable .h { background: #f4f7f8; font-size: 10px; font-weight: 600; color: #657984; }
+.confirm { border: 1px solid #c9dde6; background: #f6fafc; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; font-size: 12px; margin-top: 4px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.atbl { font-size: 12px; margin-top: 12px; }
+.atbl > div { display: grid; grid-template-columns: 150px minmax(0, 1fr) 150px 130px; }
+.atbl span { padding: 10px 12px; border-bottom: 1px solid #e3eaec; }
+.atbl .hd span { background: #f4f7f8; font-size: 10px; font-weight: 600; color: #657984; border: 0; }
+.atbl b { font-weight: 600; color: #18766d; }
+.atbl > div.new span { background: #f3faf7; }
+.atbl > div[data-hover] span { background: #fff3df; }
+.toast { position: absolute; right: 22px; bottom: 22px; max-width: 440px; padding: 12px 16px; border-radius: 8px; font-size: 13px; box-shadow: 0 8px 22px rgba(17, 43, 53, 0.2); background: #e8f5ef; border: 1px solid #b8dfcb; color: #1d4f3c; display: flex; gap: 12px; z-index: 6; animation: tin 0.25s ease-out; }
+.toast.warn { background: #fdf3df; border-color: #ecd29d; color: #6b4c12; }
+@keyframes tin { from { transform: translateY(10px); opacity: 0; } }
+.dlgbg { position: absolute; inset: 0; background: rgba(15, 30, 36, 0.32); display: grid; place-items: center; z-index: 7; }
+.dlg { width: 560px; background: #fff; border-radius: 10px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3); overflow: hidden; font-size: 13px; }
+.dlg header { padding: 14px 18px; border-bottom: 1px solid #e3eaec; font-weight: 600; display: flex; justify-content: space-between; }
+.dlg .path { padding: 8px 18px; font-size: 12px; color: #657984; background: #f6f8f9; border-bottom: 1px solid #e3eaec; }
+.dlg .f { display: grid; grid-template-columns: 26px minmax(0, 1fr) 140px; align-items: center; padding: 10px 18px; border-bottom: 1px solid #f0f3f4; }
+.dlg .f.sel { background: #e3f1ef; }
+.dlg .ic { width: 16px; height: 20px; border-radius: 2px; background: #c7d3d7; }
+.dlg .ic.x { background: #3b8f5b; } .dlg .ic.p { background: #c4574b; }
+.dlg footer { padding: 12px 18px; display: flex; justify-content: flex-end; gap: 8px; }
+.login { display: grid; grid-template-columns: 52% 48%; height: 100%; }
+.login .l { display: flex; align-items: center; justify-content: center; }
+.login .form { width: 340px; display: flex; flex-direction: column; gap: 10px; }
+.login h2 { font-size: 19px; font-weight: 700; margin-bottom: 18px !important; }
+.role { border: 1px solid #bccdd3; background: #fff; border-radius: 6px; padding: 13px 16px; display: flex; flex-direction: column; gap: 4px; }
+.role b { font-size: 14px; color: #142f39; } .role span { font-size: 11px; color: #4d6c78; }
+.login .r { background: #142f39; color: #c4d4d9; display: flex; flex-direction: column; justify-content: center; padding: 0 70px; gap: 22px; }
+.login .r .mk { width: 52px; height: 52px; font-size: 22px; border-radius: 10px; }
+.login .r h1 { font-size: 40px; line-height: 1.2; color: #fff; font-weight: 700; letter-spacing: -1px; }
+.login .r .k { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: #8ecec2; }
+.login .r .foot { border-top: 1px solid #2c4b55; padding-top: 22px; font-size: 12px; color: #8ecec2; }
+[data-hover] { outline: 3px solid #e5ad49; outline-offset: 3px; border-radius: 6px; }
+.tbl > div[data-hover], .atbl > div[data-hover], .opts div[data-hover] { outline: 0; }
+[data-press] { transform: scale(0.97); }
+#cursor { position: absolute; left: 0; top: 0; width: 26px; height: 30px; z-index: 20; pointer-events: none; will-change: transform; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35)); }
+#ripple { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 3px solid #e5ad49; z-index: 19; pointer-events: none; opacity: 0; }
+#ripple.go { animation: rip 0.5s ease-out; }
+@keyframes rip { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+.end { position: absolute; inset: 0; background: rgba(14, 30, 36, 0.78); display: grid; place-items: center; z-index: 25; }
+.endc { width: 640px; background: #fff; border-radius: 14px; padding: 36px 40px; display: flex; flex-direction: column; gap: 16px; color: #172e38; font-family: Inter, "Segoe UI", Arial, sans-serif; }
+.endc .k { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #18766d; }
+.endc h2 { margin: 0; font-size: 34px; letter-spacing: -1px; }
+.endc ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 17px; }
+.endc li { display: flex; gap: 12px; align-items: baseline; }
+.endc li::before { content: "✓"; color: #18766d; font-weight: 700; }
+.endc button { align-self: flex-start; font: inherit; font-size: 16px; font-weight: 600; color: #fff; background: #18766d; border: 0; border-radius: 8px; padding: 12px 20px; cursor: pointer; min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } #ripple.go { animation: none; } .seg i { transition: none; } }
+</style>
+<style>body { margin: 0; } [hidden] { display: none !important; }</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="pf-back" href="../../#ksiegowanie">← Wróć do portfolio</a>
+  <header class="intro">
+    <span class="eyebrow">LedgerPilot · animacja</span>
+    <h1>Dzień pracy księgowej z LedgerPilot</h1>
+    <p>Kursor klika dokładnie to, co kliknęłaby księgowa i jej przełożony: od porannego przeglądu, przez import, zatwierdzenie i eksport, po wyjątki i audyt. Dane są fikcyjne.</p>
+  </header>
+
+  <div class="layout">
+    <section class="player" aria-label="Animacja dnia pracy">
+      <div class="screen" id="screen">
+        <div class="cam" id="cam"><div class="stage" id="stage">
+          <div id="app"></div>
+          <div id="ripple"></div>
+          <svg id="cursor" viewBox="0 0 26 30" aria-hidden="true"><path d="M3 2 L3 24 L9 18.5 L13 27.5 L17 25.8 L13 17 L21 17 Z" fill="#fff" stroke="#142f39" stroke-width="2" stroke-linejoin="round"/></svg>
+          <div class="end" id="end" hidden>
+            <div class="endc">
+              <span class="k">Koniec dnia</span>
+              <h2>Wszystko zatwierdzone przez ludzi i zapisane w audycie</h2>
+              <ul>
+                <li>6 faktur z arkusza sprawdzonych automatycznie, 1 wiersz odrzucony z powodem</li>
+                <li>FV 21/10/2026 zatwierdzona, zaksięgowana i wyeksportowana do CSV</li>
+                <li>Faktura w euro zamknięta notatką, korekta kategorii przyjęta przez drugą osobę</li>
+                <li>Reguła dla Kurier Ekspres 24 włączona przez przełożonego</li>
+              </ul>
+              <button type="button" id="again">Obejrzyj ponownie</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <div class="controls">
+        <button type="button" class="cbtn primary" id="play" aria-label="Pauza">
+          <svg viewBox="0 0 16 16" id="playIcon" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="currentColor"/></svg>
+          <span id="playLbl">Pauza</span>
+        </button>
+        <button type="button" class="cbtn" id="prev" aria-label="Poprzedni krok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 L5 8 L10 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="cbtn" id="next" aria-label="Następny krok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3 L11 8 L6 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="segs" id="segs"></div>
+        <button type="button" class="cbtn" id="restart">Od początku</button>
+      </div>
+      <div class="caption" aria-live="polite">
+        <span class="chip" id="chNo">Krok 1 z 9</span>
+        <h2 id="chTitle">Logowanie i przegląd</h2>
+        <p id="say">Rano księgowa otwiera LedgerPilot i wybiera swoją rolę.</p>
+      </div>
+    </section>
+
+    <aside>
+      <h3 class="railh">Dzień w 9 krokach</h3>
+      <ol class="rail" id="rail"></ol>
+      <p class="note">Godziny w audycie, uzasadnienia korekt i treść notatek są przykładowe. Ekrany, przyciski i komunikaty są takie jak w aplikacji.</p>
+    </aside>
+  </div>
+</main>
+
+<script>
+(() => {
+  const W = 1280, H = 800;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (id) => document.getElementById(id);
+  const app = $('app'), stage = $('stage'), screenEl = $('screen'), cursor = $('cursor'), ripple = $('ripple');
+  let scale = 1;
+
+  // Portfolio copy: a camera that follows the cursor. From the wide shot it zooms in only once the
+  // cursor has landed and the screen has stayed put for 0.65 s, so a click that opens another screen
+  // does not zoom. While zoomed it pans with the cursor's own curve and duration, never further than
+  // the cursor moves (so the cursor cannot slide backwards), and it zooms out only in a real reading
+  // pause. Timing is in real time.
+  const cam = document.getElementById("cam");
+  const CAM = { z: 1, x: 0, y: 0, idle: 0, held: 0, wait: -1, sx: 0, sy: 0 };
+  const CAM_EASE = "cubic-bezier(.65,0,.35,1)";
+  function camSet(z, x, y, ms, ease) {
+    if (reduce) return;
+    CAM.z = z; CAM.x = x; CAM.y = y;
+    cam.style.transition = ms ? `transform ${Math.round(ms)}ms ${ease}` : "none";
+    cam.style.transform = z === 1 ? "" : `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${z})`;
+  }
+  function camAim(sx, sy) {
+    const bw = screenEl.clientWidth, bh = screenEl.clientHeight, z = bw < 720 ? 1.6 : 1.25;
+    const px = sx * scale, py = sy * scale;
+    return [z, Math.min(0, Math.max(bw - bw * z, bw / 2 - px * z)), Math.min(0, Math.max(bh - bh * z, bh / 2 - py * z))];
+  }
+  // sx, sy: target in stage pixels; ms, ease: the real duration and curve of the cursor move.
+  // Called before the engine updates cx, cy, so those are still where the cursor starts.
+  function camFocus(sx, sy, ms, ease) {
+    CAM.idle = 0;
+    if (CAM.z === 1) { CAM.sx = sx; CAM.sy = sy; CAM.wait = ms + 650; return; }
+    const bw = screenEl.clientWidth, bh = screenEl.clientHeight, k = scale * CAM.z;
+    const vx = sx * k + CAM.x, vy = sy * k + CAM.y;
+    if (vx > bw * 0.15 && vx < bw * 0.85 && vy > bh * 0.15 && vy < bh * 0.85) return;
+    // pan only as far as needed to bring the target back to 22% from the edge it crossed
+    let dx = 0, dy = 0;
+    if (vx < bw * 0.15) dx = bw * 0.22 - vx; else if (vx > bw * 0.85) dx = bw * 0.78 - vx;
+    if (vy < bh * 0.15) dy = bh * 0.22 - vy; else if (vy > bh * 0.85) dy = bh * 0.78 - vy;
+    const x = Math.min(0, Math.max(bw - bw * CAM.z, CAM.x + dx)), y = Math.min(0, Math.max(bh - bh * CAM.z, CAM.y + dy));
+    // a pan longer than the cursor's own move would drag the cursor backwards on screen
+    const pan = Math.hypot(x - CAM.x, y - CAM.y), move = Math.hypot((sx - cx) * k, (sy - cy) * k);
+    const inFrame = vx > bw * 0.04 && vx < bw * 0.96 && vy > bh * 0.04 && vy < bh * 0.96;
+    if (pan <= move * 0.6) camSet(CAM.z, x, y, Math.max(ms, 450), ease);
+    else if (!inFrame) camSet(1, 0, 0, Math.max(ms, 450), ease);
+  }
+  function camOut() { if (CAM.z !== 1) camSet(1, 0, 0, 1000, CAM_EASE); CAM.idle = 0; }
+  // keep the zoom while something is being read or typed (ms in animation time)
+  function camHold(ms = 0) { CAM.idle = Math.min(CAM.idle, -ms / SPEED); }
+  // dt in real ms: zoom in after the cursor rests; out after 2.6 s without action, never sooner than 2.5 s after zooming in
+  function camTick(dt) {
+    if (CAM.wait >= 0) {
+      CAM.wait -= dt;
+      if (CAM.wait < 0) { const [z, x, y] = camAim(CAM.sx, CAM.sy); CAM.held = 0; CAM.idle = Math.min(CAM.idle, 0); camSet(z, x, y, 900, CAM_EASE); }
+      return;
+    }
+    if (CAM.z === 1) return;
+    CAM.idle += dt; CAM.held += dt;
+    if (CAM.idle > 2600 && CAM.held > 2500) camOut();
+  }
+  function camReset() { camSet(1, 0, 0, 0); CAM.idle = 0; CAM.held = 0; CAM.wait = -1; }
+  // While paused, waits sleep here instead of polling requestAnimationFrame every frame
+  let pfWaiting = [];
+  function pfIdle(cb) { return new Promise((r) => pfWaiting.push(() => { r(); if (cb) cb(); })); }
+  function pfWake() { const w = pfWaiting; pfWaiting = []; w.forEach((f) => requestAnimationFrame(f)); }
+  // Screen change: the camera goes back to the wide shot and only the content area fades in (not the
+  // sidebar). If it was zoomed in, a copy of the old zoomed frame dissolves on top, so the cut reads as
+  // a dissolve rather than a jump. Must run before the new screen is rendered.
+  // The apps re-render often, so the fade is re-applied to new elements with the time already elapsed.
+  let pfFadeAt = -1e9;
+  function screenIn() {
+    // the frame as it is on screen right now: a zoom may have only just started, or a zoom-out may
+    // still be running (CAM.z is then already 1), so only the computed scale decides
+    const now = reduce ? "none" : getComputedStyle(cam).transform;
+    if (now !== "none" && new DOMMatrix(now).a > 1.02) {
+      const ghost = cam.cloneNode(true);
+      ghost.querySelectorAll("#cursor, #ripple, .ripple").forEach((e) => e.remove());
+      ghost.style.pointerEvents = "none";
+      ghost.style.transition = "none";
+      ghost.style.transform = now;
+      cam.after(ghost);
+      const from = cam.querySelectorAll("*"), to = ghost.querySelectorAll("*");
+      from.forEach((e, i) => { if (e.scrollTop && to[i]) to[i].scrollTop = e.scrollTop; });
+      ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "cubic-bezier(.4,0,.2,1)" }).finished.then(() => ghost.remove());
+    }
+    camReset();
+    pfFadeAt = performance.now();
+  }
+  function pfFade(el) {
+    const t = performance.now() - pfFadeAt;
+    if (!el || reduce || t > 250) return;
+    el.style.animation = `pf-in 240ms cubic-bezier(.2,.7,.2,1) ${-Math.round(t)}ms both`;
+  }
+  function fit() {
+    scale = screenEl.clientWidth / W;
+    stage.style.transform = `scale(${scale})`;
+    screenEl.style.height = H * scale + 'px';
+    camReset();
+  }
+  new ResizeObserver(fit).observe(screenEl);
+  fit();
+
+  /* ——— Data shown in the app (the demo's own fictional records) ——— */
+  const Q = 'Ile wydaliśmy na transport i paliwo w III kwartale, w podziale na miesiące?';
+  const docs = {
+    FV21: { no: 'FV 21/10/2026', vendor: 'Biurex Hurt sp. z o.o.', date: '16.10.2026',
+      lines: [['Papier ksero A4, 20 ryz', '23%', '346,21 zł', '79,63 zł'], ['Tonery do drukarek (komplet)', '23%', '731,24 zł', '168,19 zł']],
+      sums: ['1 077,45 zł', '247,82 zł', '1 325,27 zł'], notes: 'Dane fikcyjne — środowisko demonstracyjne LedgerPilot.' },
+    FV91: { no: 'FV 91/10/2026', vendor: 'Biurex Hurt sp. z o.o.', date: '14.10.2026',
+      lines: [['Krzesła biurowe, 4 szt.', '23%', '1 596,00 zł', '127,68 zł']], sums: ['1 596,00 zł', '127,68 zł', '1 723,68 zł'],
+      notes: 'Dane fikcyjne — środowisko demonstracyjne LedgerPilot.',
+      why: 'VAT 127,68 zł nie zgadza się ze stawką 23% od netto 1 596,00 zł (powinno być 367,08 zł).', todo: 'Poproś dostawcę o fakturę korygującą.' },
+    INV: { no: 'INV-2026-3381', vendor: 'Cloud Tools GmbH', date: '20.10.2026',
+      lines: [['Design tool subscription — 5 seats', '23%', '225,00 EUR', '51,75 EUR']], sums: ['225,00 EUR', '51,75 EUR', '276,75 EUR'],
+      notes: 'Dane fikcyjne — środowisko demonstracyjne LedgerPilot.',
+      why: 'Faktura jest w walucie EUR. Demo nie przelicza walut (potrzebny kurs NBP).', todo: 'Zaksięguj ją ręcznie w programie księgowym, a tutaj oznacz jako wyjaśnioną.' },
+    R: { no: 'R/2026/10/5521', vendor: 'Restauracja Stary Młyn', date: '17.10.2026',
+      lines: [['Kolacja z klientem, 6 osób', '8%', '980,00 zł', '78,40 zł']], sums: ['980,00 zł', '78,40 zł', '1 058,40 zł'],
+      notes: 'Dane fikcyjne — środowisko demonstracyjne LedgerPilot.',
+      why: 'Kategoria „Reprezentacja” nie ma ustalonych zasad księgowania w tej firmie.' },
+  };
+  const docRows = [
+    ['UNR1', 'Nieodczytany dokument', 'faktura-ai-skan.pdf', '—', 'unr', 'Program nie odczytał PDF-a', '—'],
+    ['UNR2', 'Nieodczytany dokument', 'faktura-ai-drukarnia.pdf', '—', 'unr', 'Program nie odczytał PDF-a', '—'],
+    ['NAP', 'NAP/10/03', 'Hurtownia Napojów Źródło', '25.10.2026', 'cla', 'VAT niezgodny ze stawką', '220,00 zł'],
+    ['SZK', 'SZK/10/12', 'Akademia Analiz Danych', '25.10.2026', 'app', '—', '2 460,00 zł'],
+    ['SOFT', 'SOFT-2026-77', 'Chmura Plus sp. z o.o.', '24.10.2026', 'app', '—', '184,50 zł'],
+    ['TX', 'TX/10/0099', 'Taxi Miejskie Sokół', '24.10.2026', 'app', '—', '336,00 zł'],
+    ['118', '2026/10/118', 'Biurex Hurt sp. z o.o.', '23.10.2026', 'app', '—', '263,96 zł'],
+    ['501', 'FV 501/10/2026', 'Drukarnia Offset Plus', '22.10.2026', 'app', '—', '2 017,20 zł'],
+  ];
+  const fv21Row = ['FV21', 'FV 21/10/2026', 'Biurex Hurt sp. z o.o.', '16.10.2026', 'app', '—', '1 325,27 zł'];
+  const claRows = [
+    docRows[0], docRows[1], docRows[2],
+    ['INV', 'INV-2026-3381', 'Cloud Tools GmbH', '20.10.2026', 'cla', 'Waluta obca', '276,75 EUR'],
+    ['R', 'R/2026/10/5521', 'Restauracja Stary Młyn', '17.10.2026', 'cla', 'Kategoria bez ustalonych zasad', '1 058,40 zł'],
+    ['FV91', 'FV 91/10/2026', 'Biurex Hurt sp. z o.o.', '14.10.2026', 'cla', 'VAT niezgodny ze stawką', '1 723,68 zł'],
+    ['FV88', 'FV 88/10/2026', 'Biurex Hurt sp. z o.o.', '14.10.2026', 'cla', 'Kwoty się nie sumują|i jeszcze 1 uwaga', '1 973,08 zł'],
+    ['CP420', 'CP/2026/10/420', 'Chmura Plus sp. z o.o.', '12.10.2026', 'cla', 'Możliwy duplikat', '2 721,62 zł'],
+    ['CP431', 'CP/2026/10/431', 'Chmura Plus sp. z o.o.', '09.10.2026', 'cla', 'Faktura na inną firmę', '602,70 zł'],
+    ['KE24', 'KE24/2026/5/77', 'Kurier Ekspres 24 sp. z o.o.', '28.05.2026', 'cla', 'Miesiąc już zamknięty', '506,76 zł'],
+  ];
+  const stageName = { unr: 'Nieodczytany', cla: 'Do wyjaśnienia', app: 'Do zatwierdzenia' };
+  // Overview totals in zł: the morning, and after the sheet's 5 clean invoices (all PLN, all passed the checks).
+  const cats = {
+    am: [['Oprogramowanie i chmura', 19967.82], ['Usługi obce (doradztwo, szkolenia, przejazdy)', 14870.7], ['Transport i paliwo', 11782.17], ['Marketing', 9102], ['Materiały biurowe', 6779.82], ['Usługi kurierskie', 2879.04], ['Media i telekomunikacja', 2725.33]],
+    pm: [['Oprogramowanie i chmura', 20152.32], ['Usługi obce (doradztwo, szkolenia, przejazdy)', 17666.7], ['Transport i paliwo', 11782.17], ['Marketing', 11119.2], ['Materiały biurowe', 7043.78], ['Usługi kurierskie', 2879.04], ['Media i telekomunikacja', 2725.33]],
+  };
+  const vendors = {
+    am: [['Chmura Plus sp. z o.o.', 19967.82], ['Kancelaria Lis i Wspólnicy', 14870.7], ['Stacja Paliw Trasa S.A.', 11782.17], ['Agencja Kreatywna Koliber', 9102], ['Biurex Hurt sp. z o.o.', 6779.82]],
+    pm: [['Chmura Plus sp. z o.o.', 20152.32], ['Kancelaria Lis i Wspólnicy', 14870.7], ['Stacja Paliw Trasa S.A.', 11782.17], ['Agencja Kreatywna Koliber', 9102], ['Biurex Hurt sp. z o.o.', 7043.78]],
+  };
+  const monthsAm = [['cze 26', 10370.48], ['lip 26', 11550.57], ['sie 26', 14206.48], ['wrz 26', 11342.79], ['paź 26', 20636.56]];
+  const categories = ['Oprogramowanie i chmura', 'Materiały biurowe', 'Marketing', 'Transport i paliwo', 'Usługi kurierskie', 'Media i telekomunikacja', 'Usługi obce (doradztwo, szkolenia, przejazdy)'];
+  const policy = [['Oprogramowanie i chmura', '402 Usługi obce'], ['Materiały biurowe', '401 Zużycie materiałów i energii'], ['Marketing', '402 Usługi obce'], ['Transport i paliwo', '401 Zużycie materiałów i energii'], ['Usługi kurierskie', '402 Usługi obce'], ['Media i telekomunikacja', '402 Usługi obce'], ['Usługi obce (doradztwo, szkolenia, przejazdy)', '402 Usługi obce']];
+  const zlInt = (n) => n.toLocaleString('pl-PL', { maximumFractionDigits: 0, useGrouping: 'always' }) + ' zł';
+
+  /* ——— State; render() draws the whole app from it ——— */
+  let S;
+  const initial = () => ({
+    screen: 'login', user: null, tab: 'przeglad', doc: null, scroll: 0, hover: null, press: null, toast: null,
+    kpi: { all: 42, app: 8, cla: 9, post: 25 }, askQ: '', askBusy: false, answer: false,
+    dialog: false, dialogSel: null, report: false, search: '',
+    fv: { checked: false, approved: false, posted: false, preview: false, exported: false },
+    inv: { open: false, note: '', resolved: false },
+    r: { form: false, opts: false, value: null, reason: '', pending: false, dreason: '', dconf: false, accepted: false },
+    waitOpen: false, rule: { ask: false, active: false },
+  });
+  const T = (name) => ` data-t="${name}"` + (S.hover === name ? ' data-hover' : '') + (S.press === name ? ' data-press' : '');
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+  function vLogin() {
+    return `<div class="login"><div class="l"><div class="form">
+      <h2>Zaloguj się do demo</h2>
+      <p class="mut sm" style="margin-bottom:6px">Wybierz rolę — dane są fikcyjne:</p>
+      <div class="role"${T('role-ksiegowa')}><b>Księgowa</b><span>sprawdza i zatwierdza faktury</span></div>
+      <div class="role"${T('role-przelozony')}><b>Przełożony</b><span>zatwierdza korekty i reguły</span></div>
+      <div class="role"><b>Tylko podgląd</b><span>bez możliwości zmian</span></div>
+      <p class="sm" style="margin-top:8px">▸ Albo zaloguj się loginem i hasłem</p>
+    </div></div>
+    <div class="r"><span class="mk">LP</span><span class="k">LEDGERPILOT AI</span>
+      <h1>Od faktury<br>do zatwierdzonego<br>zapisu.</h1>
+      <p style="font-size:14px;line-height:1.6">Program odczytuje faktury i sprawdza kwoty, VAT, nabywcę i duplikaty.<br>Każdy zapis w księgach zatwierdza człowiek.</p>
+      <p class="foot">DEMO · wyłącznie dane fikcyjne · bez połączenia z KSeF</p></div></div>`;
+  }
+
+  function vShell(content) {
+    const sup = S.user === 'sup';
+    const nav = [['przeglad', '◫', 'Przegląd'], ['dokumenty', '▤', 'Dokumenty'], ['do-wyjasnienia', '◈', 'Do wyjaśnienia'], ['kontrahenci', '◇', 'Kontrahenci'], ['reguly', '⚙', 'Reguły i polityki'], ['eksporty', '↗', 'Eksporty'], ['audyt', '≡', 'Audyt']];
+    const waiting = sup && S.r.pending && !S.r.accepted;
+    return `<div class="lp"><aside class="side">
+      <div class="brand"><span class="mk">LP</span>LedgerPilot<sup>AI</sup></div>
+      <div class="nav">${nav.map(([k, i, n]) => `<div class="${S.tab === k ? 'on' : ''}"${T('nav-' + k)}><i>${i}</i>${n}${k === 'do-wyjasnienia' ? `<b>${S.kpi.cla}</b>` : ''}</div>`).join('')}</div>
+    </aside><div class="colm">
+      <div class="top"><span class="mut">Firma</span><span class="sel">Pracownia Zielony Kwadrat sp. z o.o.<span class="mut">▾</span></span><span class="grow"></span>
+        ${waiting ? `<span class="waitwrap"><span class="pill wait"${T('waiting')}>Czeka na Ciebie: <b>1</b></span>
+          ${S.waitOpen ? `<span class="waitmenu"><div${T('waiting-item')}>Korekta R/2026/10/5521 · Pracownia Zielony Kwadrat sp. z o.o. · od anna.demo</div></span>` : ''}</span>` : ''}
+        <span class="pill ai">AI: włączone (Claude)</span><span class="pill demo">DEMO · dane fikcyjne</span>
+        <span class="who"><b>${sup ? 'supervisor.demo' : 'anna.demo'}</b><span>${sup ? 'przełożony' : 'księgowa'}</span></span>
+        <span class="btn sec small"${T('logout')}>Wyloguj</span>
+      </div>
+      <div class="main" id="main">${content}</div>
+    </div></div>`;
+  }
+
+  const addBtn = () => `<div class="addwrap"><span class="btn"${T('add')}>+ Dodaj dokument</span><span>PDF, XML z KSeF, JSON albo arkusz Excel/CSV · <u>wzór Excela</u></span></div>`;
+
+  function vPrzeglad() {
+    const k = S.kpi, pm = k.all > 42;
+    const months = pm ? monthsAm.map(([m, v], i) => [m, i === 4 ? v + 5261.66 : v]) : monthsAm;
+    const axis = pm ? 50000 : 25000, ticks = pm ? ['50 tys.', '25 tys.'] : ['25 tys.', '12,5 tys.'];
+    const cl = pm ? cats.pm : cats.am, vl = pm ? vendors.pm : vendors.am;
+    const maxC = cl[0][1], maxV = vl[0][1];
+    const flow = [['Wpłynęło', k.all], ['Do zatwierdzenia', k.app], ['Zatwierdzone przez człowieka', 25 + (S.fv.approved ? 1 : 0)], ['Zaksięgowane w rejestrze demo', k.post], ['Wyeksportowane do CSV', 12 + (S.fv.exported ? 1 : 0)]];
+    return `<div class="trow"><h1>Przegląd</h1>${addBtn()}</div>
+    <div class="tiles">
+      <div class="tile"${T('tile-0')}><span>Wszystkie dokumenty</span><b>${k.all}</b></div>
+      <div class="tile"${T('tile-1')}><span>Do zatwierdzenia</span><b>${k.app}</b></div>
+      <div class="tile"${T('tile-2')}><span>Do wyjaśnienia</span><b>${k.cla}</b></div>
+      <div class="tile"${T('tile-3')}><span>Zaksięgowane</span><b>${k.post}</b></div>
+    </div>
+    <div class="panel"><h2>Koszty brutto według miesiąca</h2><p class="mut sm">Faktury w złotych, które przeszły wszystkie kontrole. Najedź na słupek, aby zobaczyć szczegóły.</p>
+      <div class="chart">
+        <div class="gl" style="top:0"><span>${ticks[0]}</span></div><div class="gl" style="top:50%"><span>${ticks[1]}</span></div><div class="gl" style="bottom:0"><span>0</span></div>
+        <div class="bars">${months.map(([m, v], i) => `<div class="bar${i === 4 && S.hover === 'bar-paz' ? ' hi' : ''}" style="height:${(v / axis) * 100}%"${i === 4 ? T('bar-paz') : ''}></div>`).join('')}</div>
+        ${S.hover === 'bar-paz' ? `<div class="tip"><b>paź 26</b><br>Brutto: 20 636,56 zł<br>VAT: 3 858,88 zł<br>Dokumenty: 8</div>` : ''}
+      </div>
+      <div class="xl">${months.map(([m]) => `<span>${m}</span>`).join('')}</div>
+    </div>
+    <div class="two">
+      <div class="panel"><h2>Koszty według kategorii</h2><p class="mut sm">Faktury w złotych, które przeszły kontrole.</p>
+        <div class="hb">${cl.map(([n, v]) => `<span>${n}</span><span class="tr"><i style="width:${(v / maxC) * 100}%"></i></span><span class="r nw">${zlInt(v)}</span>`).join('')}</div></div>
+      <div class="panel"><h2>Najwięksi dostawcy</h2><p class="mut sm">Faktury w złotych, które przeszły kontrole. Wszystkie faktury dostawcy są w zakładce Kontrahenci.</p>
+        <div class="hb">${vl.map(([n, v]) => `<span>${n}</span><span class="tr"><i style="width:${(v / maxV) * 100}%"></i></span><span class="r nw">${zlInt(v)}</span>`).join('')}</div></div>
+    </div>
+    <div class="panel"><h2>Przepływ dokumentów</h2>
+      <div class="hb" style="grid-template-columns:240px minmax(0,1fr) 40px">${flow.map(([n, v]) => `<span>${n}</span><span class="tr"><i style="width:${(v / k.all) * 100}%"></i></span><span class="r">${v}</span>`).join('')}</div>
+      <p class="sm" style="margin-top:12px"><span class="badge b-unr">Do wyjaśnienia: ${k.cla}</span> — zatrzymane przez kontrole, nie trafiają do księgowania bez decyzji człowieka.</p>
+    </div>
+    <div class="panel askbox"${T('ask')}><h2>Zapytaj o dane (AI)</h2>
+      <p class="mut sm">Pytanie zwykłym językiem. AI (Claude Opus 5.5) zamienia je na zapytanie do bazy; liczby liczy baza danych, nie model.</p>
+      <div class="askrow"><div class="field"${T('ask-input')}>${S.askQ ? esc(S.askQ) : '<span class="ph">Np. ile wydaliśmy na marketing od lipca?</span>'}</div>
+        <span class="btn${S.askQ.length < 3 || S.askBusy ? ' dis' : ''}"${T('ask-btn')}>Zapytaj</span></div>
+      <div class="chips"><span>Ile wydaliśmy na transport i paliwo w III kwartale?</span><span>Który dostawca kosztował nas najwięcej w październiku?</span><span>Ile VAT do odliczenia mieliśmy w każdym miesiącu?</span></div>
+      ${S.answer ? `<div class="answer"${T('answer')}><p><b>Jak AI zrozumiało pytanie:</b> suma kwot brutto zaakceptowanych faktur z kategorii Transport i paliwo od 1 lipca do 30 września 2026, w podziale na miesiące.</p>
+        <table><tbody><tr><td>lipiec 2026</td><td class="r">2 493,70 zł</td></tr><tr><td>sierpień 2026</td><td class="r">2 127,65 zł</td></tr><tr><td>wrzesień 2026</td><td class="r">2 333,56 zł</td></tr></tbody></table>
+        <p class="mut sm">Model: claude-opus-5-5 · szacowany koszt zapytania: $0.0100</p></div>` : ''}
+    </div>`;
+  }
+
+  function rowsHtml(rows) {
+    return rows.map(([id, no, sub, date, st, rem, gross]) => {
+      const [r1, r2] = rem.split('|');
+      return `<div${T('row-' + id)}><span><b>${no}</b><small>${sub}</small></span><span>${date}</span><span><i class="badge b-${st}" style="font-style:normal">${stageName[st]}</i></span><span>${r1}${r2 ? `<small>${r2}</small>` : ''}</span><span class="r nw" style="align-items:flex-end">${gross}</span></div>`;
+    }).join('');
+  }
+  function listPanel(rows, count, search) {
+    return `<div class="panel list"><div class="filters"><div class="field"${T('search')}>${search ? esc(search) : '<span class="ph">Numer, dostawca, kategoria, opis…</span>'}</div><span class="stg">Wszystkie etapy ▾</span><span class="cnt">${count}</span></div>
+      <div class="tbl"><div class="hd"><span>DOKUMENT / DOSTAWCA</span><span>DATA ↓</span><span>ETAP</span><span>UWAGI</span><span class="r" style="align-items:flex-end">BRUTTO</span></div>${rowsHtml(rows)}</div></div>`;
+  }
+  function vDokumenty() {
+    const filtered = S.search.length >= 5;
+    return `<div class="trow"><h1>Dokumenty</h1>${addBtn()}</div>
+    ${S.report ? `<div class="panel report"><div class="ph2" style="border:0;margin:0;padding:0"><h2 style="margin:0">Raport importu: import-faktury.xlsx</h2><span class="btn sec small"${T('report-close')}>Zamknij</span></div>
+      <p style="margin-top:10px;font-size:13px">Dodane faktury: <b>6</b> · odrzucone wiersze: <b>1</b></p>
+      <div class="rtab"${T('report-row')}><span class="h">WIERSZ</span><span class="h">POWÓD ODRZUCENIA</span><span>9</span><span>Kolumna „Netto”: „sto złotych” — to nie jest kwota.</span></div>
+      <p class="mut sm">Każda dodana faktura przeszła te same kontrole co pojedynczy dokument. Błędy w treści faktury (np. VAT niezgodny ze stawką) zatrzymują fakturę w „Do wyjaśnienia”, a nie import.</p></div>` : ''}
+    ${listPanel(filtered ? [fv21Row] : docRows, filtered ? '1 dokument' : `${S.kpi.all} dokumentów`, S.search)}`;
+  }
+  function vWyjasnienia() {
+    let rows = claRows.filter(([id]) => !(id === 'INV' && S.inv.resolved) && !(id === 'R' && S.r.accepted));
+    return `<div class="trow"><h1>Do wyjaśnienia</h1>${addBtn()}</div>${listPanel(rows, `${rows.length} dokumentów`, '')}`;
+  }
+
+  function sourcePanel(d) {
+    return `<div class="panel src"><div class="ph2"><h3>Faktura</h3></div>
+      <div class="paper"><span class="eb">Dane odczytane z faktury</span><h3>${d.no}</h3>
+        <span>Sprzedawca: ${d.vendor}</span><span>Nabywca: Pracownia Zielony Kwadrat sp. z o.o.</span><span>Data: ${d.date}</span>
+        <div class="lines"><span class="h">POZYCJA</span><span class="h">STAWKA</span><span class="h r">NETTO</span><span class="h r">VAT</span>
+          ${d.lines.map((l) => `<span>${l[0]}</span><span>${l[1]}</span><span class="r nw">${l[2]}</span><span class="r nw">${l[3]}</span>`).join('')}</div>
+        <div class="sums"><span>Netto</span><b class="r">${d.sums[0]}</b><span>VAT</span><b class="r">${d.sums[1]}</b><span>Brutto</span><b class="r">${d.sums[2]}</b></div>
+        <p class="mut" style="font-size:10px;border-top:1px dashed #dce5e8;padding-top:8px;margin-top:6px">Uwagi zapisane przy odczycie<br>${d.notes}</p></div>
+      <p style="margin-top:14px;font-size:12px;font-weight:600;color:#18766d"><u>Pobierz oryginalny plik</u></p></div>`;
+  }
+  function steps(cur) {
+    return `<div class="steps"${T('steps')}>${['Sprawdź i zatwierdź', 'Zaksięguj', 'Eksportuj'].map((s, i) => `<div class="${i < cur ? 'done' : i === cur ? 'cur' : ''}"><span>${i + 1}</span>${s}</div>`).join('')}</div>`;
+  }
+  function vFV21() {
+    const f = S.fv, d = docs.FV21;
+    const cur = f.exported ? 3 : f.posted ? 2 : f.approved ? 1 : 0;
+    const badge = f.exported ? ['b-ok', 'Wyeksportowany'] : f.posted ? ['b-ok', 'Zaksięgowany'] : f.approved ? ['b-ok', 'Zatwierdzony'] : ['b-app', 'Do zatwierdzenia'];
+    let decision;
+    if (!f.approved) {
+      decision = `<div class="approval"><p style="text-align:center"><span style="color:#18766d;font-weight:600;font-size:13px">Zmień konto kosztowe</span></p>
+        <div class="chk"${T('confirm')}><span class="box${f.checked ? ' on' : ''}"></span>Sprawdziłem źródło, politykę i dekret. Zatwierdzam jako człowiek.</div>
+        <span class="btn${f.checked ? '' : ' dis'}" style="width:100%"${T('approve')}>Zatwierdź dekret</span></div>`;
+    } else {
+      decision = `<div class="approval"><p style="font-size:13px">Zatwierdzony zapis jest niezmienny. <span class="mut">Zatwierdził(a): anna.demo · 28.10.2026, 09:12</span></p>
+        ${f.posted ? `<p class="ok">✓ Zapisano w rejestrze DEMO · 28.10.2026, 09:13</p>` : `<span class="btn" style="align-self:flex-start"${T('post')}>Zaksięguj w rejestrze DEMO</span>`}
+        ${f.exported ? `<p class="ok"${T('download')}>✓ Wyeksportowano · 28.10.2026, 09:14 · <u>Pobierz CSV do Excela</u></p>` : f.posted && !f.preview ? `<span class="btn" style="align-self:flex-start"${T('preview')}>Podgląd eksportu CSV</span>` : ''}
+        ${f.preview ? `<div class="recon"${T('recon')}><h3 style="font-size:14px">Uzgodnienie eksportu</h3><p>Do pliku trafią 3 wiersze. Suma Wn 1 325,27 zł = suma Ma 1 325,27 zł.</p><p class="sm">▸ Zawartość pliku (format neutralny)</p>
+          <div class="row"><span class="btn"${T('commit')}>Potwierdź i utwórz eksport</span><span class="btn sec">Anuluj</span></div></div>` : ''}</div>`;
+    }
+    return `<span class="back"${T('back')}>← Wróć do listy</span><h1 class="doch">${d.no} · ${d.vendor}</h1>
+    <div class="grid2">${sourcePanel(d)}
+      <div class="panel"><div class="ph2"><h3>Dekret i decyzja</h3><span class="badge ${badge[0]}">${badge[1]}</span></div>
+        ${steps(cur)}
+        <div class="wnma"${T('dekret')}><span class="h">KONTO</span><span class="h r">WN</span><span class="h r">MA</span>
+          <span><b>401</b> Zużycie materiałów i energii</span><span class="r nw">1 077,45 zł</span><span></span>
+          <span><b>223</b> VAT naliczony</span><span class="r nw">247,82 zł</span><span></span>
+          <span><b>202</b> Rozrachunki z dostawcami</span><span></span><span class="r nw">1 325,27 zł</span>
+          <span class="f">Bilans Wn − Ma</span><span class="f"></span><span class="f r">0,00 zł</span></div>
+        <p class="expl">Dekret to instrukcja zapisu w księgach: koszt i VAT do odliczenia po stronie Wn, dług wobec dostawcy po stronie Ma. Obie strony muszą się bilansować.</p>
+        ${decision}
+        <div class="fr"><h3>Zmień kategorię lub opis</h3><p class="mut">Zmianę proponuje jedna osoba, a zatwierdza druga (zasada czterech oczu). Kwot, VAT, nabywcy i daty nie da się tu zmienić.</p>
+          ${f.approved ? '<p class="mut">Dekret jest już zatwierdzony — tej faktury nie korygujemy.</p>' : '<p>▸ Zaproponuj zmianę</p>'}</div>
+      </div></div>`;
+  }
+  function vWhy(key) {
+    const d = docs[key];
+    let extra = '';
+    if (key === 'INV') {
+      extra = S.inv.resolved
+        ? `<div class="resolved"><p><b>✓ Wyjaśnione poza programem.</b> „${esc(S.inv.note)}”</p><p class="sm" style="color:#3c6b58">anna.demo · 28.10.2026, 09:40. Dokument nie trafi do rejestru ani eksportu z tego programu.</p></div>`
+        : `<div class="det"><span class="sum"${T('resolve-open')}>${S.inv.open ? '▾' : '▸'} Oznacz jako wyjaśnione poza programem</span>
+          ${S.inv.open ? `<label class="lbl">Jak to wyjaśniono?<div class="field" style="min-height:58px"${T('resolve-note')}>${S.inv.note ? esc(S.inv.note) : '<span class="ph">Np. zaksięgowano ręcznie w programie księgowym 28.10.2026.</span>'}</div></label>
+          <span class="btn${S.inv.note.length >= 8 ? '' : ' dis'}" style="align-self:flex-start"${T('resolve-save')}>Zapisz wyjaśnienie</span>` : ''}</div>`;
+    } else if (key === 'FV91') {
+      extra = `<div class="det"><span class="sum">▸ Oznacz jako wyjaśnione poza programem</span></div>`;
+    }
+    const resolvedBadge = key === 'INV' && S.inv.resolved;
+    const todo = key === 'R' ? (S.r.pending ? 'Zmiana kategorii czeka na decyzję drugiej osoby.' : 'Kliknij „Zaproponuj zmianę” poniżej i wybierz właściwą kategorię; zatwierdzi to druga osoba.') : d.todo;
+    const showTodo = !resolvedBadge;
+    const why = key === 'R' && S.r.accepted ? '' : `<div class="why"${T('reasons')}><b>Dlaczego dokument czeka:</b><span>• ${d.why}</span>${showTodo ? `<span class="todo">Co zrobić: ${todo}</span>` : ''}</div>`;
+    let fr = '';
+    if (key === 'R') fr = vFactReview();
+    const badge = resolvedBadge ? ['b-cls', 'Zamknięty poza programem'] : key === 'R' && S.r.accepted ? ['b-app', 'Do zatwierdzenia'] : ['b-cla', 'Do wyjaśnienia'];
+    const dekret = '';
+    const resolveR = key === 'R' && !S.r.pending ? `<div class="det"><span class="sum">▸ Oznacz jako wyjaśnione poza programem</span></div>` : '';
+    return `<span class="back"${T('back')}>← Wróć do listy</span><h1 class="doch">${d.no} · ${d.vendor}</h1>
+    <div class="grid2">${sourcePanel(d)}
+      <div class="panel"><div class="ph2"><h3>Dekret i decyzja</h3><span class="badge ${badge[0]}">${badge[1]}</span></div>
+        ${why}${dekret}${extra}${resolveR}${fr}
+        <p class="sm" style="border-top:1px solid #dce5e8;margin-top:14px;padding-top:12px;font-weight:600;color:#4d6470">▸ Szczegóły techniczne (dla audytora)</p>
+      </div></div>`;
+  }
+  function vFactReview() {
+    const r = S.r;
+    let body = '';
+    if (!r.pending) {
+      body = r.form ? `<span class="sum" style="color:#18766d;font-weight:600">▾ Zaproponuj zmianę</span>
+        <label class="lbl">Co zmieniasz<span class="selbox">Kategoria wydatku<span class="mut">▾</span></span></label>
+        <label class="lbl">Proponowana wartość<span class="selbox"${T('r-value')}>${r.value ? r.value : 'Reprezentacja (obecna)'}<span class="mut">▾</span>
+          ${r.opts ? `<span class="opts"><div>Reprezentacja (obecna)</div>${categories.map((c) => `<div${T('opt-' + c)}>${c}</div>`).join('')}</span>` : ''}</span></label>
+        <label class="lbl">Dlaczego?<div class="field"${T('r-reason')}>${r.reason ? esc(r.reason) : '<span class="ph">Np. na fakturze to szkolenie, nie usługa prawna</span>'}</div></label>
+        <p class="sm">▸ Więcej: pochodzenie i dowód (opcjonalnie)</p>
+        <span class="btn sec${r.value && r.reason.length >= 8 ? '' : ' dis'}" style="align-self:flex-start"${T('r-submit')}>Przekaż do zatwierdzenia</span>`
+        : `<p${T('propose')}>▸ Zaproponuj zmianę</p>`;
+    } else {
+      const sup = S.user === 'sup';
+      body = `<div class="rev${r.accepted ? ' acc' : ''}"${T('rev-card')}><b>${r.accepted ? 'Korekta przyjęta' : 'Czeka na zatwierdzenie przez drugą osobę'}</b>
+        <span>Kategoria: Reprezentacja → <b>Marketing</b></span>
+        <small>Zaproponował(a): anna.demo · 28.10.2026, 09:52 · „${esc(r.reason)}”</small>
+        ${r.accepted ? `<span>Decyzja: supervisor.demo · 28.10.2026, 10:05 · „${esc(r.dreason)}”</span><span class="mut">Kontrole przeliczone ponownie — faktura dostała nowy dekret do zatwierdzenia.</span>`
+          : sup ? `<div style="border-top:1px solid #dce5e8;padding-top:10px;display:flex;flex-direction:column;gap:10px">
+            <label class="lbl">Uzasadnienie decyzji o korekcie<div class="field"${T('d-reason')}>${r.dreason ? esc(r.dreason) : ''}</div></label>
+            <div class="chk"${T('d-confirm')}><span class="box${r.dconf ? ' on' : ''}"></span>Sprawdziłem zmianę i jej pochodzenie jako drugi recenzent.</div>
+            <div class="row"><span class="btn${r.dconf && r.dreason.length >= 8 ? '' : ' dis'}"${T('d-accept')}>Przyjmij korektę i przelicz kontrole</span><span class="btn sec${r.dconf && r.dreason.length >= 8 ? '' : ' dis'}">Odrzuć korektę</span></div></div>`
+            : `<span class="mut">Zatwierdzi to inna osoba (np. przełożony).</span>`}</div>`;
+    }
+    return `<div class="fr"><h3>Zmień kategorię lub opis</h3><p class="mut">Zmianę proponuje jedna osoba, a zatwierdza druga (zasada czterech oczu). Kwot, VAT, nabywcy i daty nie da się tu zmienić.</p>${body}</div>`;
+  }
+  function vReguly() {
+    const ru = S.rule;
+    return `<div class="trow"><h1>Reguły i polityki</h1></div>
+    <div class="panel"><h2>Ustawienia księgowe firmy</h2><p style="font-size:13px">Obowiązują od 01.01.2026 do 31.12.2026. Okres zamknięty do 31.05.2026. Odliczenie VAT: 100%. Księgowa może sama zatwierdzać dekrety.</p>
+      <div class="rtable"><span class="h">KATEGORIA WYDATKU</span><span class="h">KONTO KOSZTOWE</span>${policy.map(([c, a]) => `<span>${c}</span><span>${a}</span>`).join('')}</div></div>
+    <div class="panel"><h2>Reguły z ręcznych zmian konta</h2><p class="mut sm">Gdy ktoś przy zatwierdzaniu zmieni konto, powstaje propozycja reguły. Po aktywacji przez przełożonego nowe faktury tego dostawcy dostaną to konto automatycznie (nadal wymagają zatwierdzenia). Wycofanie nie zmienia faktur już zaksięgowanych.</p>
+      <div style="border-top:1px solid #dce5e8;margin-top:12px;padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:13px">
+        <span>Faktury od <b>Kurier Ekspres 24 sp. z o.o.</b> (Usługi kurierskie) → konto <b>403</b> Pozostałe koszty</span>
+        <span>Status: <b>${ru.active ? 'Aktywna' : 'Propozycja'}</b></span>
+        ${ru.ask ? `<div class="confirm"${T('rule-confirm')}><span>Aktywować regułę? Od teraz nowe faktury od Kurier Ekspres 24 sp. z o.o. dostaną konto 403 Pozostałe koszty.</span><div class="row"><span class="btn small"${T('rule-yes')}>Tak, aktywuj</span><span class="btn sec small">Anuluj</span></div></div>`
+          : `<span class="btn sec small" style="align-self:flex-start"${T('rule-activate')}>${ru.active ? 'Wycofaj' : 'Aktywuj'}</span>`}
+      </div></div>
+    <p class="mut sm">Automatyczne księgowanie jest wyłączone: każdą fakturę zatwierdza człowiek.</p>`;
+  }
+  function vAudyt() {
+    const rows = [
+      ['28.10.2026, 10:07', 'Aktywowano regułę: Kurier Ekspres 24 sp. z o.o. → konto 403', '—', 'supervisor.demo', 1],
+      ['28.10.2026, 10:05', 'Przyjęto korektę', 'R/2026/10/5521', 'supervisor.demo', 1],
+      ['28.10.2026, 09:52', 'Zaproponowano korektę', 'R/2026/10/5521', 'anna.demo', 1],
+      ['28.10.2026, 09:40', 'Oznaczono jako wyjaśnione poza programem', 'INV-2026-3381', 'anna.demo', 1],
+      ['28.10.2026, 09:14', 'Wyeksportowano do CSV', 'FV 21/10/2026', 'anna.demo', 1],
+      ['28.10.2026, 09:13', 'Otwarto podgląd eksportu', 'FV 21/10/2026', 'anna.demo', 1],
+      ['28.10.2026, 09:13', 'Zaksięgowano w rejestrze', 'FV 21/10/2026', 'anna.demo', 1],
+      ['28.10.2026, 09:12', 'Zatwierdzono dekret', 'FV 21/10/2026', 'anna.demo', 1],
+      ['28.10.2026, 08:47', 'Odczytano dokument — zatrzymany do wyjaśnienia', 'NAP/10/03', 'anna.demo', 0],
+      ['28.10.2026, 08:47', 'Odczytano i sprawdzono dokument', 'SZK/10/12', 'anna.demo', 0],
+      ['28.10.2026, 08:46', 'Wgrano plik', 'SZK/10/12', 'anna.demo', 0],
+      ['28.10.2026, 08:36', 'Zakończono wywołanie AI', '—', 'anna.demo', 0],
+      ['28.10.2026, 08:36', 'Zarezerwowano koszt wywołania AI', '—', 'anna.demo', 0],
+    ];
+    return `<div class="trow"><h1>Audyt</h1></div>
+    <div class="panel"><h2>Historia zdarzeń</h2><p class="mut sm">Każde działanie jest dopisywane i nie da się go zmienić. Treść faktur nie trafia do dziennika.</p>
+      <div class="field" style="width:320px;margin-top:12px"><span class="ph">Szukaj: numer dokumentu, osoba, zdarzenie…</span></div>
+      <div class="atbl"><div class="hd"><span>KIEDY</span><span>CO</span><span>DOKUMENT</span><span>KTO</span></div>
+        ${rows.map(([w, c, d, k, n], i) => `<div class="${n ? 'new' : ''}"${T('a-' + i)}><span>${w}</span><span>${c}</span><span>${d === '—' ? '—' : `<b>${d}</b>`}</span><span>${k}</span></div>`).join('')}</div></div>`;
+  }
+  function vDialog() {
+    const files = [['p', 'faktura-ai-drukarnia.pdf', 'Dokument PDF', 'pdf1'], ['p', 'faktura-ai-skan.pdf', 'Dokument PDF', 'pdf2'], ['x', 'import-faktury.xlsx', 'Arkusz Excel', 'xlsx']];
+    return `<div class="dlgbg"><div class="dlg"><header><span>Wybierz plik do wysłania</span><span class="mut">✕</span></header>
+      <div class="path">Pobrane › faktury od klienta</div>
+      ${files.map(([k, n, t, id]) => `<div class="f${S.dialogSel === id ? ' sel' : ''}"${T('file-' + id)}><span class="ic ${k}"></span><span>${n}</span><span class="mut sm">${t}</span></div>`).join('')}
+      <footer><span class="btn sec">Anuluj</span><span class="btn${S.dialogSel ? '' : ' dis'}"${T('dlg-open')}>Otwórz</span></footer></div></div>`;
+  }
+
+  let pfKey = '';
+  function pfScreen() {
+    const k = S.screen + '|' + S.tab + '|' + S.doc;
+    if (k !== pfKey) { const first = !pfKey; pfKey = k; if (!first) screenIn(); }
+  }
+  function render() {
+    let html;
+    if (S.screen === 'login') html = vLogin();
+    else {
+      let c;
+      if (S.doc === 'FV21') c = vFV21();
+      else if (S.doc) c = vWhy(S.doc);
+      else if (S.tab === 'dokumenty') c = vDokumenty();
+      else if (S.tab === 'do-wyjasnienia') c = vWyjasnienia();
+      else if (S.tab === 'reguly') c = vReguly();
+      else if (S.tab === 'audyt') c = vAudyt();
+      else c = vPrzeglad();
+      html = vShell(c);
+    }
+    if (S.dialog) html += vDialog();
+    if (S.toast) html += `<div class="toast${S.toast.k === 'warn' ? ' warn' : ''}"><span>${S.toast.t}</span><span aria-hidden="true">×</span></div>`;
+    pfScreen();
+    app.innerHTML = html;
+    pfFade(document.getElementById('main'));
+    const m = document.getElementById('main');
+    if (m) m.scrollTop = S.scroll;
+  }
+
+  /* ——— Timing engine: everything waits through wait(), so pause and chapter jumps stop it cleanly ——— */
+  let RUN = 0, paused = false, cur = 0, chapterSpent = 0, cx = 640, cy = 420;
+  let SPEED = 1.5;
+  const ABORT = { abort: true };
+  const frame = () => new Promise((r) => requestAnimationFrame(r));
+  async function wait(ms) {
+    const id = RUN; let t = 0, last = performance.now();
+    while (t < ms) {
+      if (paused) { await pfIdle(); last = performance.now(); }
+      await frame();
+      if (id !== RUN) throw ABORT;
+      const now = performance.now(), dt = Math.min(now - last, 100) * SPEED; last = now;
+      if (!paused) { t += dt; chapterSpent += dt; camTick(dt / SPEED); }
+    }
+  }
+  function placeCursor() { cursor.style.transform = `translate(${cx - 3}px, ${cy - 2}px)`; }
+  function el(name) { return app.querySelector(`[data-t="${CSS.escape(name)}"]`); }
+  function where(name, fx = 0.5, fy = 0.5) {
+    const e = el(name); if (!e) return null;
+    const r = e.getBoundingClientRect(), a = app.getBoundingClientRect(), k = a.width / W;
+    return { x: (r.left - a.left + r.width * fx) / k, y: (r.top - a.top + r.height * fy) / k, h: r.height / k, top: (r.top - a.top) / k };
+  }
+  async function scrollInto(name) {
+    const m = document.getElementById('main'), p = where(name);
+    if (!m || !p) return;
+    const viewTop = 60, viewBottom = H - 40;
+    let target = null;
+    if (p.top < viewTop + 20) target = S.scroll - (viewTop + 80 - p.top);
+    else if (p.top + p.h > viewBottom) target = S.scroll + (p.top + p.h - viewBottom) + 60;
+    if (target === null) return;
+    target = Math.max(0, Math.min(target, m.scrollHeight - m.clientHeight));
+    await scrollTo(target);
+  }
+  async function scrollTo(target, ms = 700) {
+    const m = document.getElementById('main'); if (!m) return;
+    const from = S.scroll, steps = reduce ? 1 : Math.max(1, Math.round(ms / 16 / SPEED));
+    for (let i = 1; i <= steps; i++) {
+      const k = i / steps, e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      S.scroll = from + (target - from) * e; m.scrollTop = S.scroll;
+      if (!reduce) await wait(16);
+    }
+    S.scroll = target; m.scrollTop = target;
+  }
+  async function move(name, ms = 650, fx, fy) {
+    await scrollInto(name);
+    const p = where(name, fx ?? 0.5, fy ?? 0.5);
+    if (!p) { console.warn('LedgerPilot animation: no target', name); return; }
+    const sx = cx, sy = cy, dist = Math.hypot(p.x - sx, p.y - sy);
+    const dur = reduce ? 0 : Math.min(1100, Math.max(320, ms * (0.55 + dist / 900)));
+    camFocus(p.x, p.y, dur / SPEED, 'cubic-bezier(.33,1,.68,1)');
+    let t = 0;
+    while (t < dur) {
+      await wait(16); t += 16 * SPEED;
+      const k = Math.min(1, t / dur), e = 1 - Math.pow(1 - k, 3);
+      cx = sx + (p.x - sx) * e; cy = sy + (p.y - sy) * e; placeCursor();
+    }
+    cx = p.x; cy = p.y; placeCursor();
+    S.hover = name; render();
+    await wait(reduce ? 120 : 220);
+  }
+  async function click() {
+    const name = S.hover;
+    if (!reduce) {
+      ripple.style.left = cx + 'px'; ripple.style.top = cy + 'px';
+      ripple.classList.remove('go'); void ripple.offsetWidth; ripple.classList.add('go');
+    }
+    S.press = name; render();
+    await wait(170);
+    S.press = null; S.hover = null; render();
+  }
+  async function hover(name, ms) { await move(name); camHold(ms); await wait(ms); S.hover = null; render(); }
+  async function type(set, text, speed = 38) {
+    for (const ch of text) { set(ch); render(); camHold(); await wait(reduce ? 0 : speed); }
+  }
+  const say = (t) => { $('say').textContent = t; pfNotify(); };
+  const toast = (t, k = 'ok') => { S.toast = { t, k }; render(); };
+
+  /* ——— The day, chapter by chapter. end() is the state after the chapter, so any chapter can start cleanly ——— */
+  const CH = [
+    { title: 'Logowanie i przegląd', sub: 'Stan firmy rano',
+      end: (s) => { s.screen = 'app'; s.user = 'anna'; s.tab = 'przeglad'; s.scroll = 0; },
+      run: async () => {
+        say('Rano księgowa otwiera LedgerPilot i wybiera swoją rolę.');
+        await wait(700); await move('role-ksiegowa'); await click();
+        S.screen = 'app'; S.user = 'anna'; S.tab = 'przeglad'; render();
+        say('Przegląd pokazuje stan firmy Pracownia Zielony Kwadrat: 42 dokumenty, 8 do zatwierdzenia i 9 do wyjaśnienia.');
+        await wait(900);
+        for (let i = 0; i < 4; i++) await hover('tile-' + i, 650);
+        say('Wykres kosztów brutto: po najechaniu na październik widać kwotę, VAT i liczbę faktur.');
+        await hover('bar-paz', 2600);
+      } },
+    { title: 'Pytanie do danych', sub: 'AI odpowiada, baza liczy',
+      end: (s) => { s.askQ = Q; s.answer = true; },
+      run: async () => {
+        say('Zanim zacznie pracę, pyta o koszty zwykłym językiem.');
+        await move('ask-input', 650, 0.2); await click();
+        await type((c) => { S.askQ += c; }, Q, 30);
+        await move('ask-btn'); await click();
+        S.askBusy = true; render();
+        say('AI zamienia pytanie na zapytanie do bazy. Kwoty liczy baza danych, nie model.');
+        await wait(1500); S.askBusy = false; S.answer = true; render();
+        await move('answer', 650, 0.3, 0.5); await wait(3200); S.hover = null; render();
+      } },
+    { title: 'Import arkusza', sub: '6 faktur jednym plikiem',
+      end: (s) => { s.tab = 'dokumenty'; s.scroll = 0; s.kpi = { ...s.kpi, all: 48, app: 13, cla: 10 }; s.report = false; s.toast = null; s.dialog = false; },
+      run: async () => {
+        say('Klient przysłał arkusz z fakturami. Księgowa dodaje go jednym przyciskiem.');
+        await scrollTo(0, 900);
+        await move('add'); await click();
+        S.dialog = true; render(); await wait(500);
+        await move('file-xlsx'); await click(); S.dialogSel = 'xlsx'; render();
+        await move('dlg-open'); await click(); S.dialog = false; S.dialogSel = null;
+        toast('Arkusz zapisany: 6 faktur w kolejce. Trwa sprawdzanie…');
+        say('Program sprawdza każdą fakturę z arkusza tak samo jak pojedynczy dokument: sumy, VAT, nabywcę, okres i duplikaty.');
+        await wait(2200);
+        S.tab = 'dokumenty'; S.report = true; S.scroll = 0; S.kpi = { ...S.kpi, all: 48, app: 13, cla: 10 };
+        toast('Dodano 6 faktur z pliku import-faktury.xlsx.', 'warn');
+        say('Raport importu: 6 faktur dodanych, 1 wiersz odrzucony z powodem. Faktura z błędnym VAT czeka w „Do wyjaśnienia” (licznik: 10).');
+        await hover('report-row', 2400);
+        await hover('row-NAP', 1800);
+        await move('report-close'); await click(); S.report = false; S.toast = null; render();
+      } },
+    { title: 'Sprawdź i zatwierdź', sub: 'FV 21/10/2026',
+      end: (s) => { s.doc = 'FV21'; s.search = 'FV 21/10'; s.scroll = 0; s.fv = { ...s.fv, checked: true, approved: true }; s.kpi = { ...s.kpi, app: 12 }; s.toast = null; },
+      run: async () => {
+        say('Zwykła praca: księgowa wyszukuje fakturę FV 21/10/2026.');
+        await move('search', 650, 0.15); await click();
+        await type((c) => { S.search += c; }, 'FV 21/10', 70);
+        await wait(500);
+        await move('row-FV21', 650, 0.15); await click();
+        S.doc = 'FV21'; S.scroll = 0; render();
+        say('Po lewej faktura, po prawej dekret przygotowany przez program. Strony Wn i Ma się bilansują.');
+        await wait(600); await hover('dekret', 2600);
+        say('Księgowa porównuje kwoty, zaznacza potwierdzenie i zatwierdza dekret.');
+        await move('confirm', 650, 0.06); await click(); S.fv.checked = true; render();
+        await move('approve'); await click();
+        S.fv.approved = true; S.kpi.app = 12;
+        toast('Dekret zatwierdzony. Następny krok: zaksięguj w rejestrze.');
+        await wait(2400);
+      } },
+    { title: 'Zaksięguj i eksportuj', sub: 'Dwa kliknięcia do CSV',
+      end: (s) => { s.fv = { ...s.fv, posted: true, exported: true, preview: false }; s.kpi = { ...s.kpi, post: 26 }; s.toast = null; },
+      run: async () => {
+        say('Drugi krok: zapis w rejestrze. Od tej chwili nikt go nie zmieni.');
+        await move('post'); await click();
+        S.fv.posted = true; S.kpi.post = 26;
+        toast('Zaksięgowano w rejestrze. Następny krok: eksport do CSV.');
+        await wait(1900);
+        say('Trzeci krok: eksport. Przed zapisem program uzgadnia plik: 3 wiersze, suma Wn = suma Ma.');
+        await move('preview'); await click(); S.fv.preview = true; S.toast = null; render();
+        await hover('recon', 2400);
+        await move('commit'); await click();
+        S.fv.preview = false; S.fv.exported = true;
+        toast('Eksport zapisany. Pobierz go poniżej albo w zakładce Eksporty.');
+        say('Plik CSV dla programu księgowego jest gotowy. Faktura przeszła wszystkie trzy kroki.');
+        await hover('download', 2200);
+      } },
+    { title: 'Do wyjaśnienia', sub: 'Wyjątki z podpowiedzią',
+      end: (s) => { s.tab = 'do-wyjasnienia'; s.doc = 'INV'; s.scroll = 0; s.inv = { open: true, note: 'Zaksięgowano ręcznie w programie księgowym po kursie NBP.', resolved: true }; s.kpi = { ...s.kpi, cla: 9 }; s.toast = null; },
+      run: async () => {
+        say('Faktury z uwagami czekają osobno. Licznik w menu pokazuje, ile ich jest.');
+        await move('nav-do-wyjasnienia'); await click();
+        S.tab = 'do-wyjasnienia'; S.doc = null; S.scroll = 0; S.toast = null; render();
+        await wait(900);
+        await move('row-FV91', 650, 0.15); await click(); S.doc = 'FV91'; S.scroll = 0; render();
+        say('Każdy powód ma wyliczenie i podpowiedź. Tu VAT policzono złą stawką, więc trzeba poprosić dostawcę o korektę.');
+        await wait(500); await hover('reasons', 3000);
+        await move('back'); await click(); S.doc = null; S.scroll = 0; render();
+        say('Faktura w euro została zaksięgowana ręcznie. Księgowa zamyka sprawę krótką notatką.');
+        await move('row-INV', 650, 0.15); await click(); S.doc = 'INV'; S.scroll = 0; render();
+        await wait(500); await hover('reasons', 1800);
+        await move('resolve-open', 650, 0.3); await click(); S.inv.open = true; render();
+        await move('resolve-note', 650, 0.2, 0.35); await click();
+        await type((c) => { S.inv.note += c; }, 'Zaksięgowano ręcznie w programie księgowym po kursie NBP.', 28);
+        await move('resolve-save'); await click();
+        S.inv.resolved = true; S.kpi.cla = 9;
+        toast('Zapisano. Dokument nie jest już na liście „Do wyjaśnienia”.');
+        await wait(2400);
+      } },
+    { title: 'Korekta kategorii', sub: 'Propozycja dla drugiej osoby',
+      end: (s) => { s.doc = 'R'; s.r = { ...s.r, form: false, opts: false, value: 'Marketing', reason: 'Kolacja z klientem w ramach promocji oferty.', pending: true }; s.toast = null; },
+      run: async () => {
+        say('Kolacja z klientem ma kategorię, dla której firma nie ustaliła zasad. Księgowa proponuje zmianę.');
+        await move('back'); await click(); S.doc = null; S.scroll = 0; S.toast = null; render();
+        await move('row-R', 650, 0.15); await click(); S.doc = 'R'; S.scroll = 0; render();
+        await wait(500); await hover('reasons', 2200);
+        await move('propose', 650, 0.1); await click(); S.r.form = true; render();
+        await move('r-value', 650, 0.3); await click(); S.r.opts = true; render(); await wait(400);
+        await move('opt-Marketing', 500, 0.3); await click(); S.r.opts = false; S.r.value = 'Marketing'; render();
+        await move('r-reason', 650, 0.2); await click();
+        await type((c) => { S.r.reason += c; }, 'Kolacja z klientem w ramach promocji oferty.', 30);
+        await move('r-submit'); await click();
+        S.r.pending = true; S.r.form = false;
+        toast('Propozycja zapisana. Zatwierdzi ją druga osoba (np. przełożony).');
+        say('Zmiana nie wchodzi od razu. Czeka na decyzję drugiej osoby: tak działa zasada czterech oczu.');
+        await hover('rev-card', 2600);
+      } },
+    { title: 'Przełożony', sub: 'Korekta i reguła',
+      end: (s) => { s.user = 'sup'; s.screen = 'app'; s.tab = 'reguly'; s.doc = null; s.scroll = 0; s.waitOpen = false; s.r = { ...s.r, dreason: 'Sprawdziłem fakturę i opis — zgoda.', dconf: true, accepted: true }; s.kpi = { ...s.kpi, cla: 8, app: 13 }; s.rule = { ask: false, active: true }; s.toast = null; },
+      run: async () => {
+        say('Przełożony loguje się na swoje konto.');
+        await move('logout'); await click();
+        S.screen = 'login'; S.user = null; S.doc = null; S.toast = null; render();
+        await wait(600); await move('role-przelozony'); await click();
+        S.screen = 'app'; S.user = 'sup'; S.tab = 'przeglad'; S.scroll = 0; render();
+        say('W nagłówku widzi „Czeka na Ciebie”: korekty ze wszystkich firm, które wymagają jego decyzji.');
+        await wait(800); await move('waiting'); await click(); S.waitOpen = true; render();
+        await move('waiting-item', 650, 0.3); await click();
+        S.waitOpen = false; S.tab = 'do-wyjasnienia'; S.doc = 'R'; S.scroll = 0; render();
+        say('Sprawdza zmianę i jej uzasadnienie, wpisuje własne i przyjmuje korektę.');
+        await wait(500);
+        await move('d-reason', 650, 0.2); await click();
+        await type((c) => { S.r.dreason += c; }, 'Sprawdziłem fakturę i opis — zgoda.', 34);
+        await move('d-confirm', 650, 0.05); await click(); S.r.dconf = true; render();
+        await move('d-accept'); await click();
+        S.r.accepted = true; S.kpi.cla = 8; S.kpi.app = 13;
+        toast('Korekta przyjęta. Faktura ma nowy dekret do zatwierdzenia.');
+        await hover('rev-card', 2000);
+        say('Na koniec włącza regułę zaproponowaną przy ręcznej zmianie konta. Aplikacja pyta o skutki przed aktywacją.');
+        await move('nav-reguly'); await click(); S.tab = 'reguly'; S.doc = null; S.scroll = 0; S.toast = null; render();
+        await wait(600);
+        await move('rule-activate'); await click(); S.rule.ask = true; render();
+        await hover('rule-confirm', 1600);
+        await move('rule-yes'); await click();
+        S.rule = { ask: false, active: true };
+        toast('Reguła aktywna: nowe faktury od Kurier Ekspres 24 sp. z o.o. dostaną konto 403.');
+        await wait(2400);
+      } },
+    { title: 'Koniec dnia', sub: 'Audyt każdego kroku',
+      end: (s) => { s.tab = 'audyt'; s.doc = null; s.scroll = 0; s.toast = null; },
+      run: async () => {
+        say('Koniec dnia. W „Audycie” widać każdy krok: kto, co, kiedy i przy której fakturze.');
+        await move('nav-audyt'); await click(); S.tab = 'audyt'; S.scroll = 0; S.toast = null; render();
+        await wait(700);
+        for (const i of [7, 4, 3, 1, 0]) await hover('a-' + i, 900);
+        say('Każdy wpis jest tylko dopisywany. Nikt go nie zmieni ani nie usunie.');
+        await wait(2600);
+      } },
+  ];
+
+  function stateBefore(i) {
+    const s = initial();
+    for (let j = 0; j < i; j++) CH[j].end(s);
+    s.hover = null; s.press = null;
+    return s;
+  }
+
+  /* ——— Player UI ——— */
+  const rail = $('rail'), segs = $('segs');
+  CH.forEach((c, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button type="button" class="chap" id="chap-${i}"><span class="n">${i + 1}</span><b>${c.title}</b><span>${c.sub}</span></button>`;
+    li.firstChild.addEventListener('click', () => start(i));
+    rail.appendChild(li);
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'seg'; b.setAttribute('aria-label', `Krok ${i + 1}: ${c.title}`);
+    b.innerHTML = '<i></i>'; b.addEventListener('click', () => start(i));
+    segs.appendChild(b);
+  });
+  const est = [12640,14069,14935,12129,11405,21643,17043,26680,14367];
+  function ui() {
+    $('chNo').textContent = `Krok ${cur + 1} z ${CH.length}`;
+    $('chTitle').textContent = CH[cur].title;
+    CH.forEach((_, i) => {
+      const c = $('chap-' + i);
+      c.classList.toggle('on', i === cur); c.classList.toggle('done', i < cur);
+      if (i === cur) c.setAttribute('aria-current', 'step'); else c.removeAttribute('aria-current');
+      segs.children[i].firstChild.style.width = i < cur ? '100%' : i === cur ? Math.min(100, (chapterSpent / est[i]) * 100) + '%' : '0';
+    });
+  }
+  setInterval(() => { if (!paused) ui(); }, 250);
+  function setPaused(p) {
+    paused = p;
+    if (!p) pfWake();
+    $('playLbl').textContent = p ? 'Odtwórz' : 'Pauza';
+    $('play').setAttribute('aria-label', p ? 'Odtwórz' : 'Pauza');
+    $('playIcon').innerHTML = p ? '<path d="M4 2 L13 8 L4 14 Z" fill="currentColor"/>' : '<rect x="3" y="2" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="currentColor"/>';
+  }
+  async function start(i, autoplay = true) {
+    RUN++; const id = RUN; camReset();
+    $('end').hidden = true;
+    setPaused(!autoplay);
+    for (let k = i; k < CH.length; k++) {
+      cur = k; chapterSpent = 0;
+      S = stateBefore(k); render(); ui();
+      try { await CH[k].run(); } catch (e) { if (e === ABORT) return; throw e; }
+      if (id !== RUN) return;
+      est[k] = Math.max(chapterSpent, 1000); if (window.__pfMeasure) console.log('pf-measure', k, Math.round(chapterSpent));
+      CH[k].end(S); S.hover = null; render();
+    }
+    cur = CH.length - 1; ui(); segs.lastChild.firstChild.style.width = '100%';
+    $('end').hidden = false; setPaused(true); ended = true; camOut(); pfNotify();
+  }
+  let ended = false;
+  $('play').addEventListener('click', () => {
+    if (ended) { ended = false; start(0); return; }
+    setPaused(!paused);
+  });
+  $('prev').addEventListener('click', () => { ended = false; start(Math.max(0, cur - 1)); });
+  $('next').addEventListener('click', () => { ended = false; start(Math.min(CH.length - 1, cur + 1)); });
+  $('restart').addEventListener('click', () => { ended = false; start(0); });
+  $('again').addEventListener('click', () => { ended = false; start(0); });
+
+  S = initial(); render(); placeCursor(); ui();
+
+  // Portfolio copy: start from #N, and in ?embed let the portfolio page drive the player
+  const EMBED = document.documentElement.classList.contains("embed");
+  function pfState() { const done = est.slice(0, cur).reduce((a, b) => a + b, 0), total = est.reduce((a, b) => a + b, 0);
+    return { demo: "state", names: CH.map((c) => c.title), est, cur, paused, ended, speed: SPEED,
+      progress: ended ? 1 : (done + Math.min(chapterSpent, est[cur])) / total,
+      kicker: CH[cur].title, caption: $('say').textContent }; }
+  function pfNotify() { if (EMBED) parent.postMessage(pfState(), "*"); }
+  if (EMBED) {
+    addEventListener("message", (e) => {
+      const m = e.data;
+      if (!m || m.demo !== "cmd") return;
+      if (m.action === "play") { if (ended) { ended = false; start(0); } else setPaused(false); }
+      else if (m.action === "pause") { setPaused(true); }
+      else if (m.action === "chapter") { ended = false; start(m.value); }
+      else if (m.action === "speed") { SPEED = m.value; }
+      pfNotify();
+    });
+    setInterval(() => { if (!paused) pfNotify(); }, 250);
+  }
+  const pfStart = Math.max(0, Math.min(CH.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+  const pfMeasure = location.search.match(/[?&]measure=?([\d.]*)/);
+  if (pfMeasure) { SPEED = +pfMeasure[1] || 6; window.__pfMeasure = true; }
+  start(pfStart, EMBED ? false : !reduce);
+})();
+
+</script>
+</body>
+</html>

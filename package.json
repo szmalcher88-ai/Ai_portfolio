@@ -1,0 +1,17 @@
+{
+  "name": "wizytowka-v5-src",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "media": "python media/make-hr-reel.py"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/mona-sans": "5.3.0",
+    "@phosphor-icons/core": "2.1.1",
+    "esbuild": "0.28.2",
+    "gsap": "3.15.0"
+  }
+}
