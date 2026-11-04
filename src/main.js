@@ -2,7 +2,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { createHeroField } from "./gl.js";
-import { initPlayers } from "./player.js";
 
 window.__pfReady = true;
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -14,6 +13,12 @@ const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const EXPO = "expo.out";
+
+// Mona Sans width axis, values from Portfolio 4: the headline rests at 110%, the hovered sentence
+// opens to 114% (the longest one still ends before the gate line of the field), the intro starts at 76%
+const W_REST = "110%";
+const W_FOCUS = "114%";
+const W_START = "76%";
 
 /* ---------- Hero field ---------- */
 const hero = $(".hero");
@@ -42,8 +47,7 @@ function setZone(z) {
   else hero.dataset.focus = z;
   field?.setFocus(z === null ? -1 : z);
   if (!motion) return;
-  // 114%: the longest sentence still ends before the gate line of the field
-  $$(".ht").forEach((el) => gsap.to(el, { "--w": +el.dataset.zone === z ? "114%" : "110%", duration: 0.7, ease: EXPO, overwrite: "auto" }));
+  $$(".ht").forEach((el) => gsap.to(el, { "--w": +el.dataset.zone === z ? W_FOCUS : W_REST, duration: 0.7, ease: EXPO, overwrite: "auto" }));
 }
 $$(".hero [data-zone]").forEach((el) => {
   el.addEventListener("pointerenter", () => setZone(+el.dataset.zone));
@@ -77,164 +81,16 @@ $(".theme-btn").addEventListener("click", (e) => {
 });
 sysDark.addEventListener("change", () => field?.refreshColors());
 
-/* ---------- Players ---------- */
-const players = initPlayers(reduce);
-
-/* ---------- Scope links: scroll to the project's player and open the chapter ---------- */
-(() => {
-  const byCase = new Map(players.map((p) => [p.el.closest(".case")?.id, p]));
-  $$("[data-jump]").forEach((a) =>
-    a.addEventListener("click", (e) => {
-      const p = byCase.get(a.dataset.jump);
-      if (!p || e.metaKey || e.ctrlKey || e.shiftKey) return;
-      e.preventDefault();
-      p.chapter(+a.dataset.ch);
-      p.el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
-      p.el.querySelector(".pl-toggle")?.focus({ preventScroll: true });
-      history.replaceState(null, "", `#${a.dataset.jump}`);
-    }),
-  );
-})();
-
-/* ---------- Project index: preview follows the cursor ---------- */
-(() => {
-  const preview = $(".preview");
-  if (!preview || !finePointer) return;
-  const imgs = $$("img", preview);
-  let front = 0;
-  const show = (src) => {
-    if (imgs[front].getAttribute("src") === src) return;
-    const back = imgs[1 - front];
-    back.setAttribute("src", src);
-    gsap.set(imgs[front], { zIndex: 1 });
-    gsap.set(back, { zIndex: 2 });
-    gsap.fromTo(back, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: "power1.out", overwrite: true });
-    front = 1 - front;
-  };
-  const rows = $$(".prow");
-  rows.forEach((r) => { const i = new Image(); i.src = r.dataset.preview; });
-  // Card sits to the right of the cursor, so it never covers the name being hovered
-  gsap.set(preview, { xPercent: 0, yPercent: -50, scale: 0.85, opacity: 0, transformOrigin: "0% 50%" });
-  const xTo = gsap.quickTo(preview, "x", { duration: 0.55, ease: "power3" });
-  const yTo = gsap.quickTo(preview, "y", { duration: 0.55, ease: "power3" });
-  const rTo = gsap.quickTo(preview, "rotation", { duration: 0.8, ease: "power3" });
-  const px = (cx) => Math.min(cx + 32, innerWidth - preview.offsetWidth - 16);
-  // The card leans into horizontal movement and settles upright as soon as the cursor stops
-  let lastX = 0, settle = 0;
-  const list = $(".plist");
-  list.addEventListener("pointermove", (e) => {
-    xTo(px(e.clientX));
-    yTo(e.clientY);
-    rTo(gsap.utils.clamp(-5, 5, (e.clientX - lastX) * 0.35));
-    lastX = e.clientX;
-    clearTimeout(settle);
-    settle = setTimeout(() => rTo(0), 90);
+/* ---------- HR recording: loads only when asked for ---------- */
+$$(".shot-video").forEach((fig) => {
+  const video = $("video", fig);
+  $(".shot-play", fig).addEventListener("click", () => {
+    video.controls = true;
+    fig.classList.add("is-playing");
+    video.play().catch(() => {});
+    video.focus({ preventScroll: true });
   });
-  rows.forEach((r) =>
-    r.addEventListener("pointerenter", (e) => {
-      show(r.dataset.preview);
-      if (+gsap.getProperty(preview, "opacity") < 0.05) gsap.set(preview, { x: px(e.clientX), y: e.clientY, rotation: 0 });
-      gsap.to(preview, { opacity: 1, scale: 1, duration: 0.45, ease: EXPO, overwrite: "auto" });
-    }),
-  );
-  list.addEventListener("pointerleave", () => gsap.to(preview, { opacity: 0, scale: 0.85, duration: 0.35, ease: "power2.out", overwrite: "auto" }));
-})();
-
-/* ---------- Method: automation modes ---------- */
-(() => {
-  const box = $(".modes");
-  if (!box) return;
-  const say = $(".modes-say");
-  const btns = $$("button", box);
-  const words = [
-    "Nic nie robi. Praca idzie ręcznie, jak dotąd.",
-    "Liczy, co by zrobił. Dane bez zmian.",
-    "Działa, a wynik AI czeka na liście „Do sprawdzenia”.",
-  ];
-  let m = 1, auto = null, steps = 0;
-  const set = (i) => {
-    m = i;
-    box.style.setProperty("--m", i);
-    btns.forEach((b, j) => b.setAttribute("aria-checked", String(j === i)));
-    say.textContent = words[i];
-  };
-  // Screen readers hear the description only after the visitor changes the mode themselves
-  const byUser = () => { clearInterval(auto); auto = "off"; say.setAttribute("aria-live", "polite"); };
-  btns.forEach((b, i) => b.addEventListener("click", () => { byUser(); set(i); }));
-  box.addEventListener("keydown", (e) => {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    byUser();
-    set((m + (e.key === "ArrowRight" ? 1 : 2)) % 3);
-    btns[m].focus();
-  });
-  set(1);
-  if (reduce) return;
-  // One round of the three modes when the card comes into view, then it stops (WCAG 2.2.2)
-  ScrollTrigger.create({
-    trigger: box,
-    start: "top 85%",
-    end: "bottom 15%",
-    onToggle: (self) => {
-      if (auto === "off") return;
-      clearInterval(auto);
-      auto = self.isActive
-        ? setInterval(() => {
-            set((m + 1) % 3);
-            if (++steps >= 3) { clearInterval(auto); auto = "off"; }
-          }, 2400)
-        : null;
-    },
-  });
-})();
-
-/* ---------- Method: every mistake becomes a rule ---------- */
-(() => {
-  const tabs = $$(".learn-tabs [role=tab]");
-  if (!tabs.length) return;
-  const rules = [...$("#learn-rules").content.querySelectorAll("p")].map((p) => p.textContent);
-  const out = $(".learn-rule");
-  const panel = $(".learn-panel");
-  let cur = 0, auto = null, steps = 0;
-  const select = (i, focus) => {
-    cur = i;
-    tabs.forEach((t, j) => { t.setAttribute("aria-selected", String(j === i)); t.tabIndex = j === i ? 0 : -1; });
-    out.textContent = rules[i];
-    out.classList.remove("swap");
-    void out.offsetWidth;
-    out.classList.add("swap");
-    if (focus) tabs[i].focus();
-  };
-  // Announced only after the visitor picks a lesson themselves
-  const stop = () => { clearInterval(auto); auto = "off"; panel.setAttribute("aria-live", "polite"); };
-  tabs.forEach((t, i) => {
-    t.addEventListener("click", () => { stop(); select(i); });
-    t.addEventListener("keydown", (e) => {
-      const k = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-      if (!k) return;
-      e.preventDefault();
-      stop();
-      select((cur + k + tabs.length) % tabs.length, true);
-    });
-  });
-  select(0);
-  if (reduce) return;
-  ScrollTrigger.create({
-    trigger: ".learn",
-    start: "top 80%",
-    end: "bottom 20%",
-    onToggle: (self) => {
-      if (auto === "off") return;
-      clearInterval(auto);
-      // one pass through the lessons, back to the first, then it stops (WCAG 2.2.2)
-      auto = self.isActive
-        ? setInterval(() => {
-            select((cur + 1) % tabs.length);
-            if (++steps >= tabs.length) { clearInterval(auto); auto = "off"; }
-          }, 4200)
-        : null;
-    },
-  });
-})();
+});
 
 /* ---------- Copy e-mail ---------- */
 $$("[data-copy]").forEach((btn) => {
@@ -255,9 +111,8 @@ $$("[data-copy]").forEach((btn) => {
 (() => {
   const links = Object.fromEntries($$("[data-nav]").map((a) => [a.dataset.nav, a]));
   const mark = (k) => Object.entries(links).forEach(([key, a]) => (key === k ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
-  const zones = [["projekty", "#projekty", "#zamowienia"], ["zakres", "#zakres", "#zakres"], ["metoda", "#metoda", "#metoda"], ["dowody", "#dowody", "#dowody"], ["kontakt", "#kontakt", "#kontakt"]];
-  for (const [k, from, to] of zones) {
-    ScrollTrigger.create({ trigger: from, endTrigger: to, start: "top 45%", end: "bottom 45%", onToggle: (s) => (s.isActive ? mark(k) : links[k].getAttribute("aria-current") && mark(null)) });
+  for (const k of Object.keys(links)) {
+    ScrollTrigger.create({ trigger: `#${k}`, start: "top 45%", end: "bottom 45%", onToggle: (s) => (s.isActive ? mark(k) : links[k].getAttribute("aria-current") && mark(null)) });
   }
 })();
 
@@ -265,19 +120,18 @@ $$("[data-copy]").forEach((btn) => {
 if (motion) {
   // Hero: the letters stretch into place along the font's width axis. Opacity, rise and width are
   // separate tweens: the width opens slowly and evenly, so it reads as stretching, not as a blur.
-  // Starts once Mona Sans is in (max 700 ms) and two frames have passed, so the heavy first frame of
-  // the WebGL field does not swallow the beginning of the stretch
+  // Starts once the fonts are in (max 700 ms) and two frames have passed, so the heavy first frame
+  // of the WebGL field does not swallow the beginning of the stretch
   const tl = gsap.timeline({ defaults: { ease: EXPO }, paused: true });
   Promise.race([document.fonts?.ready, new Promise((r) => setTimeout(r, 700))]).then(() =>
     requestAnimationFrame(() => requestAnimationFrame(() => tl.play())),
   );
   tl.to(".hero-visual", { opacity: 1, duration: 1.6, ease: "power2.out" }, 0)
-    .fromTo(".hero-status", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9 }, 0.15)
-    .fromTo(".ht", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out", stagger: 0.13 }, 0.22)
-    .fromTo(".ht", { yPercent: 45 }, { yPercent: 0, duration: 1, stagger: 0.13 }, 0.22)
-    .fromTo(".ht", { "--w": "76%" }, { "--w": "110%", duration: 1.3, ease: "power3.inOut", stagger: 0.13 }, 0.32)
-    .fromTo(".hero-sub", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 1 }, 0.7)
-    .fromTo(".hero-cta", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 1 }, 0.82);
+    .fromTo(".ht", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out", stagger: 0.13 }, 0.1)
+    .fromTo(".ht", { yPercent: 45 }, { yPercent: 0, duration: 1, stagger: 0.13 }, 0.1)
+    .fromTo(".ht", { "--w": W_START }, { "--w": W_REST, duration: 1.3, ease: "power3.inOut", stagger: 0.13 }, 0.2)
+    .fromTo(".hero-sub", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 1 }, 0.58)
+    .fromTo(".hero-cta", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 1 }, 0.7);
 
   // Scrolling away from the hero sorts the rest of the mess. The copy drifts up the whole way,
   // but fades only in the second half, so the buttons never look disabled while still in reach.
@@ -285,24 +139,24 @@ if (motion) {
   gsap.to(".hero-inner", { yPercent: -14, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true } });
   gsap.fromTo(".hero-inner", { opacity: 1 }, { opacity: 0.15, ease: "none", immediateRender: false, scrollTrigger: { trigger: hero, start: "45% top", end: "bottom top", scrub: true } });
 
-  // Headings: each line rises out of its own mask; case titles also open up along the width axis
+  // Section headings: each line rises out of its own mask, so the eye lands on the heading first
   $$("[data-split]").forEach((el) => {
-    const big = el.classList.contains("case-title");
     SplitText.create(el, {
       type: "lines",
       mask: "lines",
       linesClass: "split-line",
+      // only a plain space separates words, so a no-break space keeps "z tych" or "w 15" together
+      wordDelimiter: " ",
+      reduceWhiteSpace: false,
       autoSplit: true,
       onSplit(self) {
         gsap.set(el, { visibility: "visible" });
-        const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: "top 86%", once: true } });
-        tl.from(self.lines, { yPercent: 105, duration: big ? 1.2 : 1.05, stagger: 0.09, ease: EXPO }, 0);
-        if (big) tl.from(self.lines, { fontStretch: "84%", duration: 1.3, stagger: 0.09, ease: "power3.inOut" }, 0.1);
-        return tl;
+        return gsap.from(self.lines, { yPercent: 105, duration: 1.05, stagger: 0.09, ease: EXPO, scrollTrigger: { trigger: el, start: "top 86%", once: true } });
       },
     });
   });
 
+  // Text and screenshots arrive once, in reading order
   ScrollTrigger.batch("[data-reveal]", {
     start: "top 90%",
     once: true,
@@ -319,56 +173,6 @@ if (motion) {
         },
       }),
   });
-
-  // Flow: each step appears, then its connector draws to the next icon, which pops in on arrival
-  $$(".flow").forEach((flow) => {
-    const steps = $$(".flow-step", flow);
-    const icons = $$(".flow-icon", flow);
-    gsap.set(steps, { opacity: 0, y: 24, "--draw": 0 });
-    gsap.set(icons, { scale: 0.4 });
-    const tl = gsap.timeline({ scrollTrigger: { trigger: flow, start: "top 80%", once: true } });
-    steps.forEach((step, i) => {
-      const at = i * 0.6;
-      tl.to(step, { opacity: 1, y: 0, duration: 0.9, ease: EXPO }, at)
-        .to(icons[i], { scale: 1, duration: 0.8, ease: "back.out(2.2)" }, at);
-      if (i < steps.length - 1) tl.to(step, { "--draw": 1, duration: 0.6, ease: "power2.inOut" }, at + 0.15);
-    });
-  });
-
-  // Counters
-  const fmt = new Intl.NumberFormat("pl-PL");
-  $$("[data-count]").forEach((el) => {
-    const end = +el.dataset.count, o = { v: 0 };
-    el.textContent = "0";
-    ScrollTrigger.create({
-      trigger: el,
-      start: "top 90%",
-      once: true,
-      onEnter: () => gsap.to(o, { v: end, duration: end > 100 ? 1.8 : 1.1, ease: "power3.out", onUpdate: () => (el.textContent = fmt.format(Math.round(o.v))) }),
-    });
-  });
-
-  // Change cycle: the line fills as you scroll past it
-  const steps = $$(".cycle-steps li");
-  const cycle = $(".cycle");
-  if (cycle) {
-    ScrollTrigger.create({
-      trigger: cycle,
-      start: "top 75%",
-      end: "bottom 40%",
-      scrub: 0.4,
-      onUpdate: (s) => {
-        cycle.style.setProperty("--fill", s.progress.toFixed(4));
-        const lit = s.progress * (steps.length - 1) + 0.02;
-        steps.forEach((li, i) => li.classList.toggle("on", i <= lit));
-      },
-    });
-  }
-
-  // Interleaved write: the four events arrive in order
-  const il = $$(".interleave li");
-  gsap.set(il, { opacity: 0, x: -16 });
-  ScrollTrigger.create({ trigger: ".interleave", start: "top 82%", once: true, onEnter: () => gsap.to(il, { opacity: 1, x: 0, duration: 0.7, stagger: 0.35, ease: EXPO }) });
 
   // Nav progress
   gsap.to(".nav-progress", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.3 } });
@@ -390,14 +194,7 @@ if (motion) {
     });
   }
 
-  // Pulsing status dots and the marquee run only while on screen
-  const onScreen = new IntersectionObserver((entries) => entries.forEach((e) => e.target.classList.toggle("idle", !e.isIntersecting)));
-  $$(".live-dot, .marquee").forEach((d) => onScreen.observe(d));
-
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
 } else {
-  // No motion: everything visible, the cycle shown complete
-  $$(".cycle-steps li").forEach((li) => li.classList.add("on"));
-  $(".cycle")?.style.setProperty("--fill", "1");
   root.classList.remove("motion");
 }
