@@ -78,7 +78,23 @@ $(".theme-btn").addEventListener("click", (e) => {
 sysDark.addEventListener("change", () => field?.refreshColors());
 
 /* ---------- Players ---------- */
-initPlayers(reduce);
+const players = initPlayers(reduce);
+
+/* ---------- Scope links: scroll to the project's player and open the chapter ---------- */
+(() => {
+  const byCase = new Map(players.map((p) => [p.el.closest(".case")?.id, p]));
+  $$("[data-jump]").forEach((a) =>
+    a.addEventListener("click", (e) => {
+      const p = byCase.get(a.dataset.jump);
+      if (!p || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      p.chapter(+a.dataset.ch);
+      p.el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+      p.el.querySelector(".pl-toggle")?.focus({ preventScroll: true });
+      history.replaceState(null, "", `#${a.dataset.jump}`);
+    }),
+  );
+})();
 
 /* ---------- Project index: preview follows the cursor ---------- */
 (() => {
@@ -239,7 +255,7 @@ $$("[data-copy]").forEach((btn) => {
 (() => {
   const links = Object.fromEntries($$("[data-nav]").map((a) => [a.dataset.nav, a]));
   const mark = (k) => Object.entries(links).forEach(([key, a]) => (key === k ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
-  const zones = [["projekty", "#projekty", "#zamowienia"], ["metoda", "#metoda", "#metoda"], ["kontakt", "#kontakt", "#kontakt"]];
+  const zones = [["projekty", "#projekty", "#zamowienia"], ["zakres", "#zakres", "#zakres"], ["metoda", "#metoda", "#metoda"], ["dowody", "#dowody", "#dowody"], ["kontakt", "#kontakt", "#kontakt"]];
   for (const [k, from, to] of zones) {
     ScrollTrigger.create({ trigger: from, endTrigger: to, start: "top 45%", end: "bottom 45%", onToggle: (s) => (s.isActive ? mark(k) : links[k].getAttribute("aria-current") && mark(null)) });
   }

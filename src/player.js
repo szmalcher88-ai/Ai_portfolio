@@ -23,6 +23,9 @@ const HR = {
 const SPEEDS = [1, 1.5, 2];
 const label = (s) => `${String(s).replace(".", ",")}×`;
 const all = new Set();
+// A chapter link elsewhere on the page scrolls to its player; players passed on the way must not
+// autoplay and steal the turn from it
+let focused = null, focusUntil = 0;
 
 class Player {
   constructor(el, reduce) {
@@ -68,7 +71,9 @@ class Player {
       if (!this.ready) {
         this.ready = true;
         this.send("speed", this.speed);
-        if (this.wantPlay) this.send("play");
+        // a chapter asked for before the animation loaded is sent now (it starts playing by itself)
+        if (this.pendingChapter != null) { this.send("chapter", this.pendingChapter); this.pendingChapter = null; }
+        else if (this.wantPlay) this.send("play");
         setTimeout(() => this.el.classList.add("is-ready"), 120);
       }
       Object.assign(this.s, { names: d.names, weights: d.est || this.s.weights, cur: d.cur, progress: d.progress, paused: d.paused, ended: d.ended, kicker: d.kicker, caption: d.caption });
@@ -143,8 +148,9 @@ class Player {
       ([e]) => {
         this.inView = e.intersectionRatio >= 0.55;
         clearTimeout(autoT);
-        if (this.inView && !this.userPaused && !this.reduce && !this.s.ended) {
-          autoT = setTimeout(() => { if (this.inView && !this.userPaused && !this.s.ended) this.play(); }, 300);
+        const held = () => focused && focused !== this && performance.now() < focusUntil;
+        if (this.inView && !this.userPaused && !this.reduce && !this.s.ended && !held()) {
+          autoT = setTimeout(() => { if (this.inView && !this.userPaused && !this.s.ended && !held()) this.play(); }, 300);
         } else if (e.intersectionRatio < 0.2 && !this.s.paused) this.pause();
       },
       { threshold: [0, 0.2, 0.55, 0.8], rootMargin: "0px" },
@@ -193,6 +199,8 @@ class Player {
   }
   chapter(i) {
     for (const p of all) if (p !== this && !p.s.paused) p.pause();
+    focused = this;
+    focusUntil = performance.now() + 1600;
     this.userPaused = false;
     this.started = true;
     if (this.kind === "video") {
@@ -207,7 +215,8 @@ class Player {
     } else {
       this.mount();
       this.wantPlay = true;
-      this.send("chapter", i);
+      if (this.ready) this.send("chapter", i);
+      else this.pendingChapter = i;
     }
   }
   cycleSpeed() {

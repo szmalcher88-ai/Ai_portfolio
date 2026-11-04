@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "finalne",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "--port", "5200", "--strictPort"],
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["C:/Users/SzMal/Portfolio_finalne/serve.py", "5200", "C:/Users/SzMal/Portfolio_finalne/site"],
       "port": 5200
     },
     {

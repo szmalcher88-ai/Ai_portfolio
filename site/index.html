@@ -37,7 +37,9 @@
     </a>
     <nav class="nav-links" aria-label="Sekcje">
       <a href="#projekty" data-nav="projekty">Projekty</a>
+      <a href="#zakres" data-nav="zakres">Zakres</a>
       <a href="#metoda" data-nav="metoda">Jak pracuję</a>
+      <a href="#dowody" data-nav="dowody">Dowody</a>
       <a href="#kontakt" data-nav="kontakt">Kontakt</a>
     </nav>
     <div class="nav-actions">
@@ -162,13 +164,26 @@
 
       <div class="facts">
         <dl class="facts-nums">
-          <div class="fact" data-reveal><dt>testów jednostkowych i komponentów</dt><dd data-count="1508">1508</dd></div>
-          <div class="fact" data-reveal><dt>testów end-to-end na osobnej bazie</dt><dd data-count="86">86</dd></div>
-          <div class="fact" data-reveal><dt>role, uprawnienia zawsze z bazy</dt><dd data-count="3">3</dd></div>
+          <div class="fact" data-reveal><dt>testów jednostkowych i komponentów<span class="fact-src">README.md, w. 130</span></dt><dd data-count="1508">1508</dd></div>
+          <div class="fact" data-reveal><dt>testów end-to-end na osobnej bazie<span class="fact-src">README.md, w. 133</span></dt><dd data-count="86">86</dd></div>
+          <div class="fact" data-reveal><dt>role, uprawnienia zawsze z bazy<span class="fact-src">README.md, w. 93 i 111</span></dt><dd data-count="3">3</dd></div>
         </dl>
         <ul class="stack" aria-label="Technologie" data-reveal>
           <li>Next.js 15</li><li>TypeScript</li><li>Prisma</li><li>PostgreSQL 16</li><li>Auth.js</li><li>Gemini API</li><li>Google Drive i Calendar</li><li>Tally</li><li>Playwright</li><li>GitHub Actions</li>
         </ul>
+      </div>
+
+      <div class="story">
+        <h3 class="story-title" data-reveal>Z produkcji: daty ważności z dokumentów</h3>
+        <p class="story-lede" data-reveal>Dział HR przepisywał ręcznie daty badań lekarskich, szkoleń BHP i zaświadczeń A1 ze skanów w folderach pracowników. Tak to wdrożyłem u klienta.</p>
+        <ol class="story-steps">
+          <li data-zone="1" data-reveal><h4>Najpierw algorytm</h4><p>Datę z nazwy pliku czyta zwykły kod: za darmo, powtarzalnie i bez wysyłania danych na zewnątrz.</p></li>
+          <li data-zone="0" data-reveal><h4>AI tylko tam, gdzie trzeba</h4><p>Pliki bez daty w nazwie czyta model, po zgodzie klienta. Wynik trafia na listę „Do sprawdzenia”, nigdy prosto do kalendarza.</p></li>
+          <li data-zone="2" data-reveal><h4>Ręczne wpisy są nienaruszalne</h4><p>Automat może je tylko potwierdzić odnośnikiem do pliku. Pilnują tego zapis warunkowy i sumy kontrolne przed i po każdym przebiegu.</p></li>
+          <li data-zone="1" data-reveal><h4>Każdy przebieg da się cofnąć</h4><p>Pierwszy przebieg jest punktem odniesienia, a każdy kolejny można wycofać skryptem.</p></li>
+          <li data-zone="2" data-reveal><h4>Błąd złapany w kilka godzin</h4><p>Porównanie stanu pokazało, że kilka pozycji zniknęło z listy. Test, skrypt naprawczy na sucho, wykonanie po mojej zgodzie. Dane nie ucierpiały.</p></li>
+        </ol>
+        <p class="story-src" data-reveal>Źródło: hr-recruitment-portfolio, docs/JAK-PRACUJE-Z-AI.md, „Przykład: daty ważności z dokumentów”</p>
       </div>
     </div>
   </section>
@@ -223,9 +238,9 @@
 
       <div class="facts">
         <dl class="facts-nums">
-          <div class="fact" data-reveal><dt>testów Vitest, do tego 4 scenariusze Playwright</dt><dd data-count="140">140</dd></div>
-          <div class="fact" data-reveal><dt>problemów z audytu UX, potem trzy rundy poprawek</dt><dd data-count="35">35</dd></div>
-          <div class="fact" data-reveal><dt>firmy demo z izolacją danych w bazie (RLS)</dt><dd data-count="4">4</dd></div>
+          <div class="fact" data-reveal><dt>testów Vitest, do tego 4 scenariusze Playwright<span class="fact-src">README.md, w. 22 i 218</span></dt><dd data-count="140">140</dd></div>
+          <div class="fact" data-reveal><dt>problemów z audytu UX, potem trzy rundy poprawek<span class="fact-src">README.md, w. 90</span></dt><dd data-count="35">35</dd></div>
+          <div class="fact" data-reveal><dt>firmy demo z izolacją danych w bazie (RLS)<span class="fact-src">README.md, w. 19 i 46-49</span></dt><dd data-count="4">4</dd></div>
         </dl>
         <aside class="callout" data-reveal>
           <p><strong>Próba „prompt injection” w stopce faktury.</strong> Model wskazał wstawioną instrukcję i ją zignorował. Nawet gdyby jej uległ, nie ma narzędzia, które cokolwiek zatwierdza.</p>
@@ -287,13 +302,68 @@
 
       <div class="facts">
         <dl class="facts-nums">
-          <div class="fact" data-reveal><dt>testów silnika w Rust</dt><dd data-count="99">99</dd></div>
-          <div class="fact" data-reveal><dt>testów aplikacji Rails, w tym klikane scenariusze</dt><dd data-count="144">144</dd></div>
-          <div class="fact" data-reveal><dt>zamówień w ERP po dniu z animacji, 5 bez udziału człowieka</dt><dd data-count="8">8</dd></div>
+          <div class="fact" data-reveal><dt>testów silnika w Rust<span class="fact-src">README.md, w. 209</span></dt><dd data-count="99">99</dd></div>
+          <div class="fact" data-reveal><dt>testów aplikacji Rails, w tym klikane scenariusze<span class="fact-src">README.md, w. 210</span></dt><dd data-count="144">144</dd></div>
+          <div class="fact" data-reveal><dt>zamówień w ERP po dniu z animacji, 5 bez udziału człowieka<span class="fact-src">plansza końcowa animacji</span></dt><dd data-count="8">8</dd></div>
         </dl>
         <ul class="stack" aria-label="Technologie" data-reveal>
           <li>Ruby on Rails 8.1</li><li>Rust</li><li>Claude API (structured outputs)</li><li>SQLite</li><li>Capybara</li><li>GitHub Actions</li>
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Zakres z ogłoszenia ===================== -->
+  <section class="scope" id="zakres" aria-labelledby="zakres-h">
+    <div class="wrap">
+      <h2 class="section-title" id="zakres-h" data-split>Zakres z ogłoszenia: gdzie to zobaczyć</h2>
+      <p class="section-lede" data-reveal>Każdy punkt ogłoszenia działa już w jednym z trzech systemów. Link przewija do animacji i włącza właściwy rozdział.</p>
+      <div class="scope-grid">
+        <div class="scope-item" data-reveal>
+          <h3>Panele, tabele, wykresy i formularze</h3>
+          <ul>
+            <li><a class="jump" href="#hr" data-jump="hr" data-ch="0"><span class="jump-p">System HR</span><span class="jump-t">tablica pracowników i liczniki dokumentów</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#ksiegowanie" data-jump="ksiegowanie" data-ch="0"><span class="jump-p">LedgerPilot</span><span class="jump-t">przegląd kosztów z wykresami</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#zamowienia" data-jump="zamowienia" data-ch="4"><span class="jump-p">AI Order Intake</span><span class="jump-t">formularz decyzji o kredycie</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+          </ul>
+        </div>
+        <div class="scope-item" data-reveal>
+          <h3>Import z Excela, CSV i innych systemów</h3>
+          <ul>
+            <li><a class="jump" href="#ksiegowanie" data-jump="ksiegowanie" data-ch="2"><span class="jump-p">LedgerPilot</span><span class="jump-t">import arkusza z raportem błędów</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#zamowienia" data-jump="zamowienia" data-ch="2"><span class="jump-p">AI Order Intake</span><span class="jump-t">zamówienia z maili, PDF i Excela</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#hr" data-jump="hr" data-ch="1"><span class="jump-p">System HR</span><span class="jump-t">dokumenty i zdjęcia z Dysku Google</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+          </ul>
+        </div>
+        <div class="scope-item" data-reveal>
+          <h3>Łączenie aplikacji przez API</h3>
+          <ul>
+            <li><a class="jump" href="#hr" data-jump="hr" data-ch="4"><span class="jump-p">System HR</span><span class="jump-t">zgłoszenia z formularza przez webhook i ocena CV przez AI</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#zamowienia" data-jump="zamowienia" data-ch="9"><span class="jump-p">AI Order Intake</span><span class="jump-t">wysyłka zamówień do ERP przez adapter</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#ksiegowanie" data-jump="ksiegowanie" data-ch="1"><span class="jump-p">LedgerPilot</span><span class="jump-t">pytanie do danych przez Claude API</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+          </ul>
+        </div>
+        <div class="scope-item" data-reveal>
+          <h3>Automatyzacja raportów i obliczeń</h3>
+          <ul>
+            <li><a class="jump" href="#ksiegowanie" data-jump="ksiegowanie" data-ch="4"><span class="jump-p">LedgerPilot</span><span class="jump-t">eksport z uzgodnieniem sum Wn i Ma</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#zamowienia" data-jump="zamowienia" data-ch="10"><span class="jump-p">AI Order Intake</span><span class="jump-t">podsumowanie dnia: ile zamówień przeszło bez ręcznej pracy</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#hr" data-jump="hr" data-ch="2"><span class="jump-p">System HR</span><span class="jump-t">profil kompetencji w PDF po polsku, niemiecku i angielsku</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+          </ul>
+        </div>
+        <div class="scope-item" data-reveal>
+          <h3>Poprawność danych i błędy</h3>
+          <ul>
+            <li><a class="jump" href="#ksiegowanie" data-jump="ksiegowanie" data-ch="5"><span class="jump-p">LedgerPilot</span><span class="jump-t">wyliczenie złej stawki VAT</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#zamowienia" data-jump="zamowienia" data-ch="8"><span class="jump-p">AI Order Intake</span><span class="jump-t">cena poniżej umowy</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+            <li><a class="jump" href="#hr" data-jump="hr" data-ch="3"><span class="jump-p">System HR</span><span class="jump-t">odczyty AI czekają na liście „Do sprawdzenia”</span><span class="jump-i" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span></a></li>
+          </ul>
+        </div>
+        <div class="scope-item scope-item-text" data-reveal>
+          <h3>Regularne pokazywanie postępów</h3>
+          <p>Krótkie sprinty, zwykle 1-3 dni, a po każdym pokaz u klienta. Uwagi użytkowników wracają jako małe, osobne zmiany, często jeszcze tego samego dnia.</p>
+          <a class="scope-more" href="#metoda">Cykl jednej zmiany <svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M200,88V192a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h84.69L58.34,69.66A8,8,0,0,1,69.66,58.34L184,172.69V88a8,8,0,0,1,16,0Z"/></svg></a>
+        </div>
       </div>
     </div>
   </section>
@@ -346,10 +416,13 @@
           </div>
           <p class="modes-say">Liczy, co by zrobił. Dane bez zmian.</p>
         </article>
-        <article class="rule rule-proof" data-reveal>
-          <h3>Dowód, nie deklaracja</h3>
-          <p class="proof-quote">„Działa” znaczy: wynik z bazy, z przeglądarki, z logów albo z odpowiedzi HTTP.</p>
-          <p>Poprawkę sprawdzam realną ścieżką użytkownika, a wynik CI w GitHubie, nie po kodzie wyjścia polecenia.</p>
+        <article class="rule rule-data" data-reveal>
+          <h3>Dane osobowe zostają na produkcji</h3>
+          <ul class="data-list">
+            <li>Zero prawdziwych danych w testach, logach, raportach i commitach.</li>
+            <li>PESEL szyfrowany AES-256-GCM. Rola Podgląd nie dostaje z serwera PESEL-u, płac ani numeru konta.</li>
+            <li>Dokumenty trafiają do zewnętrznego modelu AI dopiero po zgodzie klienta.</li>
+          </ul>
         </article>
         <article class="rule rule-learn" data-reveal>
           <h3>Każdy błąd zostaje regułą</h3>
@@ -378,6 +451,41 @@
     </div>
   </section>
 
+  <!-- ===================== Dowody ===================== -->
+  <section class="proof" id="dowody" aria-labelledby="dowody-h">
+    <div class="wrap">
+      <h2 class="section-title" id="dowody-h" data-split>Dowód, nie deklaracja</h2>
+      <p class="section-lede" data-reveal>„Działa” znaczy u mnie: wynik z bazy, z przeglądarki, z logów albo z odpowiedzi HTTP. Każda liczba na tej stronie ma podane źródło, a obok jest to, czego nie dowodzi.</p>
+      <div class="proof-grid">
+        <figure class="measure" data-reveal>
+          <figcaption>
+            <h3>Pomiary na żywo: Claude w LedgerPilot</h3>
+            <p class="measure-meta">27.10.2026, koszt szacowany z liczby tokenów</p>
+          </figcaption>
+          <div class="measure-scroll">
+            <table>
+              <thead><tr><th scope="col">Wywołanie</th><th scope="col">Czas</th><th scope="col">Koszt</th><th scope="col">Wynik</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Odczyt skanu faktury</th><td class="num">10,5 s</td><td class="num">0,026 USD</td><td>dane odczytane; brak waluty oznaczony, faktura czeka na wyjaśnienie</td></tr>
+                <tr><th scope="row">Faktura z próbą „prompt injection”</th><td class="num">6,8 s</td><td class="num">0,025 USD</td><td>pola poprawne; model wskazał wstawioną instrukcję i ją zignorował</td></tr>
+                <tr><th scope="row">Pytanie: transport i paliwo w III kwartale</th><td class="num">4,8 s</td><td class="num">0,009 USD</td><td>kwoty zgodne co do grosza z niezależnym zapytaniem SQL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="fact-src">Automatyzacja_ksiegowanie, README.md, w. 150-156</p>
+        </figure>
+        <aside class="limits" data-reveal>
+          <h3>Czego to nie dowodzi</h3>
+          <ul>
+            <li>Trzy wywołania modelu to za mało, żeby mówić o skuteczności odczytu. Pomiar na większym zestawie faktur jest następnym krokiem.</li>
+            <li>Wynik „8 zamówień, 5 bez człowieka” to dzień z animacji na danych syntetycznych, nie liczba z produkcji.</li>
+            <li>Animacje LedgerPilot i AI Order Intake odtwarzają interfejs na fikcyjnych danych, więc przebieg i wyniki AI są w nich ustawione z góry. Nagranie HR pochodzi z wersji portfolio, w której Gemini i usługi Google są zasymulowane.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
   <div class="marquee" aria-label="Technologie, których używam">
     <div class="marquee-track">
       <ul>
@@ -392,6 +500,15 @@
   <!-- ===================== Kontakt ===================== -->
   <section class="contact" id="kontakt" aria-labelledby="kontakt-h">
     <div class="wrap">
+      <div class="gains">
+        <h3 class="gains-title" data-reveal>Co z tego ma klient</h3>
+        <dl class="gains-list">
+          <div data-reveal><dt>Tempo</dt><dd>Poprawki po pokazie często trafiają na produkcję jeszcze tego samego dnia.</dd></div>
+          <div data-reveal><dt>Przewidywalność</dt><dd>Nic nie zmienia się bez mojej zgody, a każda zmiana ma ścieżkę odwrotu.</dd></div>
+          <div data-reveal><dt>Bezpieczeństwo</dt><dd>Prawdziwe dane nie wychodzą poza produkcję, a AI nie ma ostatniego słowa.</dd></div>
+          <div data-reveal><dt>Przejrzystość</dt><dd>Każdy krok kończy się raportem z dowodami, który da się sprawdzić.</dd></div>
+        </dl>
+      </div>
       <h2 class="contact-title" id="kontakt-h" data-split>Pokażę każdą z tych aplikacji na żywo w 15 minut</h2>
       <p class="contact-lede" data-reveal>Jestem dostępny od zaraz, na B2B albo umowę o pracę. Kod udostępniam na prośbę.</p>
       <div class="contact-row" data-reveal>
