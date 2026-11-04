@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dzień pracy w HR System</title>
+<link rel="stylesheet" href="../demo.css">
+<script>if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add("embed");</script>
+<style>
+/* Layout: a player page. The recreated HR System runs on a fixed 1280x760 stage scaled to the width,
+   with the caption, controls and chapters under it. player-chrome.css (linked after this block) styles the frame. */
+:root {
+  --page: #eef1f6; --panel: #ffffff; --ink: #0f172a; --ink-2: #475569; --line: #d8dee8;
+  --accent: #2748c9; --accent-soft: #e6ebfb;
+  --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 28px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 18px; }
+.head h1 { margin: 0; text-wrap: balance; }
+.head p { margin: 8px 0 0; font-size: 1rem; max-width: 62ch; line-height: 1.5; }
+.player { overflow: hidden; }
+.stage-box { position: relative; width: 100%; aspect-ratio: 1280 / 760; max-width: 100%; overflow: hidden; }
+.stage { position: absolute; left: 0; top: 0; width: 1280px; height: 760px; transform-origin: 0 0; }
+.cap { display: flex; gap: 16px; }
+.cap .k { flex: none; text-transform: uppercase; padding-top: 3px; }
+.cap p { margin: 0; max-width: 80ch; min-width: 0; }
+.ctl { display: flex; flex-wrap: wrap; align-items: center; }
+.ctl button { cursor: pointer; }
+.ctl .primary { min-width: 104px; }
+.bar { flex: 1 1 200px; overflow: hidden; min-width: 120px; }
+.bar i { display: block; height: 100%; width: 0; }
+.chapters { list-style: none; margin: 0; display: flex; overflow-x: auto; }
+.chapters button { text-align: left; white-space: nowrap; background: transparent; cursor: pointer; }
+.chapters button b { font-variant-numeric: tabular-nums; margin-right: 5px; }
+.note { font-size: .86rem; line-height: 1.5; margin: 0; }
+@media (max-width: 640px) { .cap { flex-direction: column; gap: 4px; } .cap .k { padding-top: 0; } }
+
+/* ---------- The recreated HR System (always the app's own light look; tokens from tailwind.config.ts) ---------- */
+#screen { position: absolute; inset: 0; }
+#screen.enter { animation: scr-in .3s cubic-bezier(.16,1,.3,1); }
+@keyframes scr-in { from { opacity: .25; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.app { position: absolute; inset: 0; display: flex; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; color: #0a0a0b; background: #faf9f6; font-size: 13px; line-height: 1.35; -webkit-font-smoothing: antialiased; }
+.mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+.tab { font-variant-numeric: tabular-nums; }
+
+.sb { width: 232px; flex: none; background: #0a0a0b; color: #faf9f6; display: flex; flex-direction: column; }
+.sb .brand { display: flex; align-items: center; gap: 11px; padding: 22px 18px 14px; }
+.hrm { width: 34px; height: 34px; flex: none; border-radius: 6px; background: #c0392b; color: #faf9f6; font-weight: 600; font-size: 16px; display: grid; place-items: center; letter-spacing: .01em; }
+.sb .brand b { display: block; font-size: 17px; font-weight: 600; line-height: 1.15; }
+.sb .brand small { display: block; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: #bcbcc2; }
+.sb nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 20px; }
+.sb .sec { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9.5px; letter-spacing: .16em; color: #5a5a62; padding: 0 10px 7px; }
+.sb .it { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: #bcbcc2; margin-bottom: 3px; }
+.sb .it.on { background: #faf9f6; color: #0a0a0b; }
+.sb .it > span:first-of-type { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb .it .c { margin-left: auto; min-width: 19px; height: 19px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #a83232; color: #fff; font-size: 10px; font-weight: 500; display: grid; place-items: center; }
+.sb .me { border-top: 1px solid #2a2a2e; padding: 14px 18px 16px; }
+.sb .me .u { display: flex; align-items: center; gap: 11px; }
+.sb .me .ua { width: 34px; height: 34px; border-radius: 50%; background: #2a2a2e; display: grid; place-items: center; font-size: 11.5px; font-weight: 500; }
+.sb .me small { display: block; font-size: 11.5px; color: #5a5a62; }
+.sb .out { margin-top: 11px; border: 1px solid #2a2a2e; border-radius: 6px; text-align: center; font-size: 12px; padding: 7px; color: #bcbcc2; }
+.main { flex: 1; min-width: 0; position: relative; overflow: hidden; }
+.ct { position: absolute; inset: 0; padding: 22px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.demo { position: absolute; top: 12px; right: 14px; z-index: 20; background: #0a0a0b; color: #faf9f6; font-size: 10.5px; border-radius: 6px; padding: 5px 9px; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); }
+.demo b { color: #ff6b5e; font-weight: 700; }
+
+.ph { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.ph h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.02em; }
+.ph .sub { color: #5a5a62; font-size: 13px; margin-top: 3px; }
+.lb { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #5a5a62; }
+.card { background: #fff; border: 1px solid #e8e6df; border-radius: 12px; box-shadow: 0 1px 0 rgba(20,20,22,.04), 0 1px 2px rgba(20,20,22,.04); }
+.b { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; padding: 8px 12px; border-radius: 6px; border: 1px solid #e8e6df; background: #fff; color: #0a0a0b; white-space: nowrap; transition: transform .12s; }
+.b.ink { background: #0a0a0b; color: #faf9f6; border-color: #0a0a0b; }
+.b.brand { background: #2e4bd1; color: #fff; border-color: #2e4bd1; }
+.b.ok { background: #2f7d4f; color: #fff; border-color: #2f7d4f; }
+.b.bad { background: #a83232; color: #fff; border-color: #a83232; }
+.b.sm { font-size: 11.5px; padding: 6px 10px; }
+.b.busy { opacity: .7; }
+.pressed { transform: scale(.95); }
+.spin { display: inline-block; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* status chips (STATUS_COLORS) */
+.st { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 9px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .8; }
+.fc { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 9px; border-radius: 999px; border: 1px solid #e8e6df; background: #fff; color: #3c3c42; white-space: nowrap; }
+.fc i { width: 6px; height: 6px; border-radius: 50%; }
+.src { font-size: 10.5px; font-weight: 500; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.src.olx { background: #fbf0dd; color: #a86b1d; box-shadow: inset 0 0 0 1px #ecd2a3; }
+.src.oth { background: #eef0ff; color: #2e4bd1; box-shadow: inset 0 0 0 1px #c8d6f0; }
+.av { width: 30px; height: 30px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 10.5px; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; border-radius: 999px; padding: 3px 9px; }
+.pill.ok { background: #e7f1e9; color: #2f7d4f; box-shadow: inset 0 0 0 1px #c5e0cb; }
+.pill.warn { background: #fbf0dd; color: #a86b1d; box-shadow: inset 0 0 0 1px #ecd2a3; }
+.pill.neut { background: #f4f3ee; color: #5a5a62; box-shadow: inset 0 0 0 1px #e8e6df; }
+
+/* recruitment */
+.flt { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.flt .row1 { display: grid; grid-template-columns: 1.6fr 1fr 0.8fr 0.7fr; gap: 10px; }
+.inp { display: flex; align-items: center; gap: 8px; border: 1px solid #e8e6df; border-radius: 7px; padding: 8px 11px; font-size: 12.5px; color: #8a8a92; background: #fff; }
+.inp.sel { justify-content: space-between; color: #0a0a0b; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.tb .th, .tb .tr { display: grid; grid-template-columns: 2fr 1.9fr 0.75fr 1.3fr 1.45fr 0.95fr 20px; align-items: center; gap: 12px; padding: 0 16px; }
+.tb .th { height: 36px; border-bottom: 1px solid #e8e6df; }
+.tb .tr { height: 44px; border-bottom: 1px solid #f0eee8; font-size: 12.5px; }
+.tb .tr:last-child { border-bottom: 0; }
+.who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.who b { display: block; font-weight: 500; font-size: 12.5px; white-space: nowrap; }
+.who small { display: block; font-size: 11px; color: #5a5a62; }
+.sbar { display: flex; align-items: center; gap: 9px; }
+.sbar .tk { flex: 1; height: 5px; border-radius: 99px; background: #e8e6df; overflow: hidden; }
+.sbar .tk i { display: block; height: 100%; border-radius: 99px; }
+.sbar b { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 500; width: 22px; text-align: right; }
+.proc { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #8a8a92; }
+.row-in { animation: row-in .55s cubic-bezier(.16,1,.3,1) both; }
+@keyframes row-in { 0% { opacity: 0; transform: translateY(-16px); background: #eef0ff; } 55% { opacity: 1; transform: none; background: #eef0ff; } 100% { background: #fff; } }
+.tr.hl { background: #fdf6e6; box-shadow: inset 3px 0 0 #a86b1d; }
+.tr.sel { background: #f6f7ff; box-shadow: inset 3px 0 0 #2e4bd1; }
+.grow { animation: grow 1s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes grow { from { width: 0; } }
+.pop { animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes pop { 0% { transform: scale(.6); opacity: .1; } 100% { transform: none; opacity: 1; } }
+
+/* candidate drawer */
+.scrim { position: absolute; inset: 0; background: rgba(10,10,11,.16); z-index: 4; }
+.drawer { position: absolute; top: 0; right: 0; bottom: 0; width: 520px; background: #fff; border-left: 1px solid #e8e6df; box-shadow: -14px 0 32px -10px rgba(20,20,22,.2); display: flex; flex-direction: column; z-index: 5; }
+.slide-r { animation: slide-r .34s cubic-bezier(.16,1,.3,1) both; }
+@keyframes slide-r { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+.fade { animation: fade .3s ease both; }
+@keyframes fade { from { opacity: 0; } }
+.dh { padding: 42px 22px 0; }
+.dh .top { display: flex; align-items: flex-start; gap: 12px; }
+.dh h2 { margin: 1px 0 2px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+.dh .meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; font-size: 11.5px; color: #3c3c42; }
+.dh .chg { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.tabs { display: flex; gap: 22px; padding: 0 22px; border-bottom: 1px solid #e8e6df; margin-top: 14px; font-size: 13px; color: #5a5a62; }
+.tabs span { padding: 10px 0; }
+.tabs span.on { color: #0a0a0b; font-weight: 500; box-shadow: inset 0 -2px 0 #0a0a0b; }
+.dbody { flex: 1; padding: 16px 22px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.sc2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.scard { background: #f4f3ee; border-radius: 12px; box-shadow: inset 0 0 0 1px #e8e6df; padding: 16px; }
+.scard .big { font-size: 52px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.kv { display: grid; grid-template-columns: 92px 1fr; gap: 5px 10px; font-size: 12px; }
+.kv span { color: #5a5a62; }
+.quote { border-radius: 12px; box-shadow: inset 0 0 0 1px #e8e6df; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; color: #1d1d20; }
+.note-in { border: 1px solid #e8e6df; border-radius: 8px; padding: 9px 11px; font-size: 12px; color: #8a8a92; height: 34px; }
+.dfoot { display: flex; gap: 8px; padding: 12px 22px 16px; border-top: 1px solid #e8e6df; }
+.hist { display: flex; flex-direction: column; gap: 10px; }
+.hist div { display: grid; grid-template-columns: 112px 1fr; gap: 10px; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #f0eee8; }
+.hist span { color: #5a5a62; font-size: 11.5px; }
+
+/* modal */
+.mback { position: absolute; inset: 0; background: rgba(10,10,11,.42); display: grid; place-items: center; z-index: 12; }
+.modal { width: 470px; background: #fff; border-radius: 14px; box-shadow: 0 24px 48px -12px rgba(20,20,22,.35); overflow: hidden; }
+.modal .mh { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #e8e6df; font-size: 15px; font-weight: 600; }
+.modal .mb { padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+.modal .mb .full { grid-column: 1 / -1; }
+.fld .lb { display: block; margin-bottom: 5px; }
+.fld .in { border: 1px solid #e8e6df; border-radius: 7px; padding: 8px 10px; font-size: 13px; min-height: 18px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+.fld .in .ph2 { color: #8a8a92; }
+.fld .in.focus { border-color: #2e4bd1; box-shadow: 0 0 0 3px #eef0ff; }
+.fld .in.focus .v::after { content: ""; display: inline-block; width: 1px; height: 14px; margin-left: 1px; vertical-align: -2px; background: #0a0a0b; animation: blink .9s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.modal .mf { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid #e8e6df; }
+.pop-in { animation: pop-in .3s cubic-bezier(.16,1,.3,1) both; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+
+/* toast */
+.toast { position: absolute; right: 22px; bottom: 22px; z-index: 30; background: #0a0a0b; color: #faf9f6; border-radius: 10px; padding: 11px 14px; display: flex; gap: 10px; align-items: center; font-size: 12.5px; box-shadow: 0 14px 30px -10px rgba(10,10,11,.45); max-width: 420px; }
+.toast small { display: block; color: #bcbcc2; font-size: 11px; margin-top: 1px; }
+.toast .ti { width: 22px; height: 22px; border-radius: 50%; background: #2f7d4f; display: grid; place-items: center; flex: none; }
+.toast-in { animation: toast-in .4s cubic-bezier(.16,1,.3,1) both; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* dashboard / sync */
+.sync .sh { display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+.sync .sh h2 { margin: 0; font-size: 13.5px; font-weight: 600; }
+.sync .sh .when { font-size: 11px; color: #8a8a92; }
+.sync .sh .rv { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: #a86b1d; background: #fbf0dd; border-radius: 999px; padding: 3px 9px; box-shadow: inset 0 0 0 1px #ecd2a3; }
+.sync .sb2 { border-top: 1px solid #f0eee8; padding: 11px 16px 13px; font-size: 12px; color: #3c3c42; }
+.sync .sb2 b { color: #0a0a0b; }
+.stream { display: flex; flex-direction: column; gap: 6px; }
+.fl { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: center; font-size: 12px; padding: 6px 10px; border-radius: 7px; background: #faf9f6; box-shadow: inset 0 0 0 1px #f0eee8; }
+.fl .fn { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; color: #3c3c42; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fl mark { background: transparent; color: #0a0a0b; font-weight: 600; border-radius: 3px; padding: 0 2px; animation: mark .9s ease .2s both; }
+@keyframes mark { 0% { background: transparent; } 40% { background: #c5e0cb; } 100% { background: #e7f1e9; } }
+.fl .res { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #3c3c42; }
+.line-in { animation: line-in .38s cubic-bezier(.16,1,.3,1) both; }
+@keyframes line-in { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+.stats { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: #3c3c42; margin-top: 6px; }
+.stats b { color: #0a0a0b; font-variant-numeric: tabular-nums; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.tile { border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
+.tile .ic { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.75); display: grid; place-items: center; flex: none; }
+.tile .tx { flex: 1; text-align: center; }
+.tile .tx .lb { letter-spacing: .2em; }
+.tile .tx b { display: block; font-size: 34px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile .tx small { font-size: 11.5px; color: #3c3c42; }
+.tile.bad { background: #fbe7e5; box-shadow: inset 0 0 0 1px #ecc5c1; } .tile.bad .lb, .tile.bad b, .tile.bad .ic { color: #a83232; }
+.tile.warn { background: #fbf0dd; box-shadow: inset 0 0 0 1px #ecd2a3; } .tile.warn .lb, .tile.warn b, .tile.warn .ic { color: #a86b1d; }
+.tile.ok { background: #e7f1e9; box-shadow: inset 0 0 0 1px #c5e0cb; } .tile.ok .lb, .tile.ok b, .tile.ok .ic { color: #2f7d4f; }
+.tile.tick { animation: tick .6s ease; }
+@keyframes tick { 40% { transform: scale(1.025); } }
+.h2row { display: flex; justify-content: space-between; align-items: baseline; }
+.h2row h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+.board .bh { padding: 12px 16px 8px; }
+.board .br { display: grid; grid-template-columns: 34px 1.6fr 1.2fr 0.9fr 0.8fr 1fr 1.6fr; gap: 10px; align-items: center; padding: 8px 16px; font-size: 12px; border-top: 1px solid rgba(20,20,22,.05); }
+.board .br.h { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9.5px; letter-spacing: .12em; color: #5a5a62; }
+.pj { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; font-weight: 600; background: #fff; border-radius: 4px; padding: 2px 6px; box-shadow: inset 0 0 0 1px rgba(20,20,22,.1); }
+.pj small { font-family: "Inter", sans-serif; font-weight: 400; color: #5a5a62; margin-left: 3px; }
+
+/* documents: review list */
+.rvh { display: flex; align-items: center; gap: 9px; padding: 12px 16px; border-bottom: 1px solid #e8e6df; font-size: 13px; }
+.rvh small { color: #5a5a62; font-size: 11.5px; }
+.rvr { display: grid; grid-template-columns: 2.1fr 1fr 1fr 1fr 168px; gap: 4px 12px; padding: 11px 16px; border-bottom: 1px solid #f0eee8; align-items: center; max-height: 90px; overflow: hidden; }
+.rvr b { font-weight: 500; font-size: 13px; display: block; }
+.rvr .ty { font-size: 11.5px; color: #3c3c42; }
+.rvr .fn { font-size: 11px; color: #2e4bd1; display: inline-flex; gap: 4px; align-items: center; }
+.rvr .cl small { display: block; font-size: 10.5px; color: #5a5a62; }
+.rvr .cl strong { font-size: 12px; font-weight: 600; }
+.rvr .why { grid-column: 2 / 5; font-size: 11px; color: #5a5a62; }
+.rvr .act { grid-row: 1 / 3; grid-column: 5; display: flex; gap: 6px; justify-content: flex-end; }
+.rvr.hl { background: #fdf6e6; box-shadow: inset 3px 0 0 #a86b1d; }
+.rvr.ai.hl { background: #f6f7ff; box-shadow: inset 3px 0 0 #2e4bd1; }
+.collapse { animation: collapse .55s cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes collapse { 0% { opacity: 1; } 35% { opacity: 0; transform: translateX(24px); max-height: 90px; } 100% { opacity: 0; transform: translateX(24px); max-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; } }
+
+/* kadry + profile wheel (globals.css: EMPLOYEE WHEEL) */
+.kad { display: grid; grid-template-columns: 318px 1fr; gap: 16px; flex: 1; min-height: 0; }
+.elist { display: flex; flex-direction: column; overflow: hidden; }
+.elist .eh { padding: 12px 14px 10px; display: flex; flex-direction: column; gap: 9px; border-bottom: 1px solid #f0eee8; }
+.seg3 { display: inline-flex; background: #f4f3ee; border-radius: 7px; padding: 2px; font-size: 11.5px; gap: 2px; }
+.seg3 span { padding: 4px 9px; border-radius: 5px; color: #3c3c42; }
+.seg3 span.on { background: #0a0a0b; color: #faf9f6; }
+.emp { display: flex; gap: 11px; padding: 11px 14px; border-bottom: 1px solid #f0eee8; align-items: flex-start; }
+.emp.sel { background: #f6f7ff; box-shadow: inset 3px 0 0 #2e4bd1; }
+.emp b { font-weight: 500; font-size: 13px; display: block; }
+.emp .tg { display: inline-block; font-size: 10.5px; color: #3c3c42; background: #f4f3ee; border-radius: 4px; padding: 1px 6px; margin-top: 3px; }
+.emp .ea { margin-top: 7px; display: flex; gap: 6px; align-items: center; }
+.wheel-host { position: relative; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 30%, rgba(46,75,209,.12) 0%, transparent 55%), radial-gradient(ellipse at center, #14151f 0%, #08090e 75%); border: 1px solid rgba(255,255,255,.06); box-shadow: 0 24px 48px -16px rgba(0,0,0,.5); color: #f4f4f6; display: flex; flex-direction: column; }
+.wheel-host::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+.whead { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 0; }
+.whead b { font-size: 15px; font-weight: 600; } .whead small { display: block; color: rgba(255,255,255,.5); font-size: 11.5px; }
+.b.dk { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.9); }
+.wempty { flex: 1; display: grid; place-items: center; color: rgba(255,255,255,.45); font-size: 13px; }
+.wstage { position: relative; width: 236px; height: 236px; margin: 4px auto 6px; flex: none; }
+.wstage > svg { position: absolute; inset: 0; overflow: visible; }
+.seg { transform-box: view-box; transform-origin: 0 0; transition: none; }
+.seg .sf { fill: var(--cf); }
+.seg.lock .sf { fill: var(--cb); }
+.seg.lock { transform: translate(var(--ox), var(--oy)); filter: drop-shadow(0 0 14px var(--cg)); }
+.seg.dim { opacity: .42; }
+.ring { fill: none; stroke: rgba(255,255,255,.14); stroke-width: .6; }
+.ambient { fill: none; stroke: rgba(255,255,255,.05); stroke-width: .5; stroke-dasharray: 1 3; }
+.wl { position: absolute; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+.wl .li { width: 30px; height: 30px; margin: 0 auto 4px; border-radius: 9px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); display: grid; place-items: center; color: var(--c); }
+.wl span { font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,.78); white-space: nowrap; }
+.wl.lock .li { background: var(--cb); border-color: var(--c); box-shadow: 0 0 18px var(--cg); }
+.wl.lock span { color: #fff; font-weight: 600; }
+.wl.dim { opacity: .4; }
+.wcenter { position: absolute; left: 50%; top: 50%; width: 26%; height: 26%; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle at 50% 35%, #1f2032 0%, #0a0b14 80%); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 0 40px rgba(46,75,209,.2); display: grid; place-items: center; }
+.wcenter i { width: 80%; height: 80%; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 15px; font-weight: 500; color: rgba(20,20,30,.85); background: #c7d3ff; }
+.w-in .seg { animation: seg-in .46s cubic-bezier(.2,1.4,.4,1) backwards; }
+.w-in .seg:nth-of-type(2) { animation-delay: .08s; } .w-in .seg:nth-of-type(3) { animation-delay: .16s; } .w-in .seg:nth-of-type(4) { animation-delay: .24s; }
+@keyframes seg-in { from { transform: scale(0); opacity: 0; } }
+.w-in .wl { animation: lbl-in .48s cubic-bezier(.2,1.4,.4,1) .18s backwards; }
+@keyframes lbl-in { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
+.w-in .wcenter { animation: c-in .42s cubic-bezier(.2,1.5,.4,1) backwards; }
+@keyframes c-in { from { transform: translate(-50%, -50%) scale(0); } }
+.lock-in { animation: lock-in .42s cubic-bezier(.34,1.56,.64,1); }
+@keyframes lock-in { from { transform: translate(0, 0); } }
+.wc { position: relative; flex: 1; border-top: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.015); padding: 12px 18px 14px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.c-in { animation: c-up .36s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes c-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.wch { display: flex; align-items: center; gap: 10px; }
+.wch .ib { width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; flex: none; }
+.wch .lb { color: rgba(255,255,255,.45); }
+.wch b { font-size: 14px; font-weight: 600; display: block; }
+.pnl { background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 11px 14px; }
+.pnl h4 { margin: 0 0 8px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.dt { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.dt th { text-align: left; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); padding: 0 0 6px; }
+.dt td { padding: 5px 0; border-top: 1px solid rgba(255,255,255,.06); color: rgba(255,255,255,.85); }
+.prow { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: rgba(255,255,255,.75); }
+.prow b { color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ptrack { height: 6px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; margin: 6px 0 9px; }
+.ptrack i { display: block; height: 100%; border-radius: 99px; background: #fb923c; }
+.dkv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; font-size: 12px; }
+.dkv span { color: rgba(255,255,255,.5); } .dkv em { font-style: normal; color: rgba(255,255,255,.9); }
+.dkv .mono { font-size: 11.5px; }
+.nod { font-size: 12.5px; color: rgba(255,255,255,.6); padding: 6px 0; }
+
+/* PDF preview */
+.pdfm { width: 760px; height: 640px; background: #fff; border-radius: 14px; box-shadow: 0 24px 48px -12px rgba(20,20,22,.35); display: flex; flex-direction: column; overflow: hidden; }
+.pdfm .mh { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #e8e6df; }
+.pdfm .mh h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.lg { display: inline-flex; gap: 4px; }
+.lg span { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 6px; background: #f4f3ee; color: #5a5a62; box-shadow: inset 0 0 0 1px #e8e6df; }
+.lg span.on { background: #2e4bd1; color: #fff; box-shadow: none; }
+.pdfb { flex: 1; background: #f4f3ee; display: grid; place-items: center; padding: 18px; }
+.page { width: 400px; height: 540px; background: #fff; box-shadow: 0 10px 30px -10px rgba(20,20,22,.3); padding: 34px 38px; box-sizing: border-box; font-family: Georgia, "Times New Roman", serif; color: #1d1d20; display: flex; flex-direction: column; gap: 12px; }
+.page .pt { border-bottom: 2px solid #c0392b; padding-bottom: 10px; }
+.page .pt small { display: block; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #8a8a92; font-family: "Inter", sans-serif; }
+.page .pt b { display: block; font-size: 22px; font-weight: 600; margin-top: 4px; }
+.page .pn { font-size: 15px; }
+.page dl { margin: 0; display: grid; grid-template-columns: 130px 1fr; gap: 7px 12px; font-size: 12px; }
+.page dt { color: #5a5a62; font-family: "Inter", sans-serif; font-size: 11px; }
+.page dd { margin: 0; }
+.page .pf { margin-top: auto; font-size: 10px; color: #8a8a92; font-family: "Inter", sans-serif; }
+.swap-in { animation: swap-in .4s ease both; }
+@keyframes swap-in { 0% { opacity: .15; filter: blur(2px); } 100% { opacity: 1; filter: none; } }
+
+/* login */
+.login { position: absolute; inset: 0; background: #0a0a0b; display: grid; place-items: center; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; }
+.lcard { width: 360px; border: 1px solid #2a2a2e; border-radius: 18px; padding: 32px; text-align: center; color: #faf9f6; }
+.lcard .hrm { width: 52px; height: 52px; font-size: 24px; margin: 0 auto 12px; border-radius: 10px; }
+.lcard h2 { margin: 0; font-size: 24px; font-weight: 600; }
+.lcard .lsub { font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #bcbcc2; margin-top: 3px; }
+.lcard p { font-size: 13px; color: #bcbcc2; margin: 22px 0 26px; }
+.gbtn { background: #faf9f6; color: #0a0a0b; border-radius: 7px; padding: 10px; font-size: 13px; font-weight: 500; }
+.tests { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 16px; }
+.tests span { border: 1px solid #2a2a2e; border-radius: 6px; padding: 6px 10px; font-size: 11px; color: #bcbcc2; }
+
+/* annotation (player layer, not app UI) */
+.anno { position: absolute; z-index: 40; background: #f0b429; color: #1b1403; font-family: "IBM Plex Sans", "Inter", sans-serif; font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 6px; box-shadow: 0 10px 24px -8px rgba(0,0,0,.45); }
+.anno::before { content: ""; position: absolute; left: -6px; top: 50%; width: 12px; height: 12px; background: inherit; transform: translateY(-50%) rotate(45deg); }
+
+/* outro */
+.outro { position: absolute; inset: 0; background: #0a0a0b; color: #faf9f6; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 0 120px; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; }
+.outro .hrm { width: 54px; height: 54px; font-size: 25px; border-radius: 10px; }
+.outro h2 { margin: 0; font-size: 50px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.08; }
+.outro ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; max-width: 900px; }
+.outro li { font-size: 19px; color: #d6d6da; display: flex; gap: 12px; align-items: baseline; }
+.outro li::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: #c0392b; flex: none; transform: translateY(-2px); }
+.outro .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.outro .row span { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid #2a2a2e; color: #e6e6e8; }
+.outro.in > * { animation: c-up .5s cubic-bezier(.2,.8,.2,1) both; }
+.outro.in > *:nth-child(2) { animation-delay: .08s; } .outro.in > *:nth-child(3) { animation-delay: .16s; } .outro.in > *:nth-child(4) { animation-delay: .24s; }
+
+#cursor { position: absolute; left: 0; top: 0; width: 26px; height: 26px; pointer-events: none; z-index: 50; transform: translate(640px, 420px); filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+#cursor.hide { opacity: 0; }
+.ripple { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 3px solid #c0392b; pointer-events: none; z-index: 49; animation: rip .55s ease-out forwards; }
+@keyframes rip { from { transform: scale(.4); opacity: 1; } to { transform: scale(3.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  #screen.enter, .row-in, .grow, .pop, .slide-r, .fade, .pop-in, .toast-in, .line-in, .fl mark, .tile.tick, .collapse, .w-in .seg, .w-in .wl, .w-in .wcenter, .lock-in, .c-in, .swap-in, .outro.in > *, .ripple, .spin, .fld .in.focus .v::after { animation: none !important; }
+  #cursor { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="pf-back" href="../../#hr">← Wróć do portfolio</a>
+  <div class="head">
+    <div>
+      <h1>Dzień pracy działu kadr w HR System</h1>
+      <p>Ewa z działu kadr przechodzi przez rekrutację, dokumenty z Dysku Google i profil pracownika. Ekrany, statusy i etykiety pochodzą z działającej aplikacji, dane są fikcyjne.</p>
+    </div>
+  </div>
+
+  <div class="player">
+    <div class="stage-box" id="stageBox">
+      <div class="stage" id="stage" aria-live="polite">
+        <div id="screen"></div>
+        <svg id="cursor" viewBox="0 0 26 26" aria-hidden="true"><path d="M5 3 L5 21 L10 16.5 L13.6 24 L16.8 22.6 L13.3 15.3 L20 15.3 Z" fill="#0a0a0b" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="cap">
+      <span class="k" id="kicker">Start</span>
+      <p id="caption">Naciśnij Odtwórz, aby zobaczyć dzień pracy krok po kroku.</p>
+    </div>
+    <div class="ctl">
+      <button type="button" class="primary" id="playBtn">Pauza</button>
+      <button type="button" id="restartBtn">Od początku</button>
+      <button type="button" id="speedBtn" aria-label="Zmień tempo">Tempo 1×</button>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    </div>
+    <ol class="chapters" id="chapters"></ol>
+  </div>
+
+  <p class="note">Wersja portfolio aplikacji kadrowo-rekrutacyjnej dla firmy budowlanej. Usługi zewnętrzne (Gemini, Dysk i Kalendarz Google) są tu zasymulowane, reguły i uprawnienia działają jak na produkcji.</p>
+</div>
+
+<script src="embed-bridge.js"></script>
+<script>
+(() => {
+  const W = 1280, H = 760;
+  const stage = document.getElementById("stage");
+  const box = document.getElementById("stageBox");
+  const screen = document.getElementById("screen");
+  const cursor = document.getElementById("cursor");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const cam = LineCamera(stage, W, H);
+  let scale = 1;
+  const fit = () => { scale = box.clientWidth / W; cam.setFit(scale); };
+  new ResizeObserver(fit).observe(box);
+  fit();
+
+  // ---------- icons: the app's own NavIcon paths (stroke 1.75) and lucide-react glyphs ----------
+  const I = {
+    home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+    rec: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M17 8h4M19 6v4"/>',
+    hr: '<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0"/><path d="M15 20a4 4 0 0 1 6.5-3.1"/>',
+    docs: '<path d="M6 2.5h8l4 4V21a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 21V2.5Z"/><path d="M14 2.5V7h4"/><path d="M9 12h6M9 16h4"/>',
+    set: '<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18 6l-2 2M8 16l-2 2M18 18l-2-2M8 8 6 6"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    alertc: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    userplus: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    cal: '<path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M3 10h18"/><path d="M16 19h6"/><path d="M19 16v6"/>',
+    ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    chev: '<path d="m6 9 6 6 6-6"/>',
+    right: '<path d="m9 18 6-6-6-6"/>',
+    arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    sync: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+    dl: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    wallet: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    brief: '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+    file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    clip: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    loader: '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>'
+  };
+  const ic = (n, s = 16, c = "currentColor", w = 2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+  const spinner = (s = 13, c = "currentColor") => `<span class="spin" style="width:${s}px;height:${s}px;line-height:0">${ic("loader", s, c)}</span>`;
+
+  // ---------- data (fictional records from webapp/demo/seed-demo.ts and the recording script) ----------
+  const STATUS = {
+    PROCESSING: ["Przetwarzanie", "#ebedef", "#434b56", "#d1d5db"],
+    TO_REVIEW: ["Do przeglądu", "#cee4fd", "#144e8f", "#a2ccfb"],
+    DUPLICATE_REVIEW: ["Możliwy duplikat", "#fce5b1", "#755200", "#fad785"],
+    AI_REJECTED: ["Odrzucony przez AI", "#fcd5eb", "#8f1e5e", "#f8aad6"],
+    ACCEPTED: ["Zaakceptowany", "#e1f1bc", "#49620e", "#d0e996"],
+    NO_ANSWER: ["Nie odbiera", "#bff0f8", "#085b68", "#95e7f3"],
+    INTERVIEW_SCHEDULED: ["Spotkanie zaplanowane", "#f0dafb", "#732c96", "#dfb1f6"],
+    POST_INTERVIEW: ["Po spotkaniu", "#c5c5f1", "#232385", "#a0a0e9"],
+    STANDBY: ["Awaryjny", "#bcebde", "#0a5c45", "#98e1cd"],
+    TO_HIRE: ["Do zatrudnienia", "#9cdea7", "#0e4e18", "#79d288"],
+    HR_REJECTED: ["Odrzucony przez HR", "#fac4c2", "#931e1a", "#f79a97"],
+    NO_SHOW: ["Nie pojawił się", "#fdd1b4", "#883b07", "#fcb688"],
+    WITHDRAWN: ["Wycofany", "#d1ccc7", "#49423c", "#bcb5ae"]
+  };
+  const BASE_COUNTS = { PROCESSING: 0, TO_REVIEW: 3, DUPLICATE_REVIEW: 1, AI_REJECTED: 1, ACCEPTED: 1, NO_ANSWER: 1, INTERVIEW_SCHEDULED: 2, POST_INTERVIEW: 2, STANDBY: 1, TO_HIRE: 1, HR_REJECTED: 1, NO_SHOW: 1, WITHDRAWN: 1 };
+  const chip = (s, cls = "") => { const [l, bg, fg, ring] = STATUS[s]; return `<span class="st ${cls}" style="background:${bg};color:${fg};box-shadow:inset 0 0 0 1px ${ring}">${l}</span>`; };
+  const scoreColor = (s) => s <= 30 ? "#a83232" : s <= 50 ? "#b65a1d" : s <= 70 ? "#a86b1d" : "#2f7d4f";
+  const avatar = (ini, hue, s = 30) => `<span class="av" style="width:${s}px;height:${s}px;background:hsl(${hue} 55% 92%);color:hsl(${hue} 38% 32%)">${ini}</span>`;
+  const P = { spaw: "Spawacz MIG/MAG (Niemcy)", mont: "Monter konstrukcji stalowych", ciesla: "Cieśla szalunkowy", elek: "Elektryk budowlany" };
+  const BASE_ROWS = [
+    { id: "zk", i: "ZK", h: 210, n: "Zenon Kratowy", ph: "+48 500 000 207", p: P.mont, src: "OLX", sc: null, st: "DUPLICATE_REVIEW", d: "29 paź 26" },
+    { id: "ks", i: "KS", h: 200, n: "Kamil Szalunkowy", ph: "+48 500 000 201", p: P.ciesla, src: "OLX", sc: 88, st: "TO_REVIEW", d: "28 paź 26" },
+    { id: "hs", i: "HS", h: 120, n: "Henryk Stropowy", ph: "+48 500 000 206", p: P.mont, src: "OLX", sc: 62, st: "TO_REVIEW", d: "27 paź 26" },
+    { id: "dr", i: "DR", h: 150, n: "Dawid Rusztowany", ph: "+48 500 000 204", p: P.spaw, src: "OLX", sc: 31, st: "AI_REJECTED", d: "26 paź 26" },
+    { id: "pz", i: "PZ", h: 160, n: "Piotr Zbrojarski", ph: "+48 500 000 203", p: P.mont, src: "OLX", sc: 79, st: "INTERVIEW_SCHEDULED", d: "25 paź 26" },
+    { id: "le", i: "LE", h: 350, n: "Lena Elektrowska", ph: "+48 500 000 202", p: P.elek, src: "Pracuj.pl", sc: 82, st: "INTERVIEW_SCHEDULED", d: "24 paź 26" },
+    { id: "jo", i: "JS", h: 20, n: "Jan Spawacki", ph: "+48 500 000 205", p: P.spaw, src: "Pracuj.pl", sc: 74, st: "TO_REVIEW", d: "21 paź 26" }
+  ];
+  const NEW = {
+    ms: { id: "ms", i: "MS", h: 150, n: "Marek Spawalski", ph: "+48 500 000 301", p: P.spaw, src: "OLX", d: "30 paź 26" },
+    js: { id: "js", i: "JS", h: 20, n: "Jan Spawacki", ph: "500-000-205", p: P.spaw, src: "OLX", d: "30 paź 26" }
+  };
+  const MS_REASON = "Dopasowanie do wymagań ogłoszenia: 11/13 (m.in. uprawnienia, spawalnicze, 135, 136, mag, konstrukcjach). Doświadczenie: 6 lat(a). [Demo: ocena z lokalnego ewaluatora zamiast modelu Gemini, bez wywołań zewnętrznych.]";
+
+  // ---------- the app shell ----------
+  function shell(active, st, body) {
+    const nav = (key, label, icon, count) => `<div class="it ${active === key ? "on" : ""}" data-t="nav-${key}">${ic(icon, 16, "currentColor", 1.75)}<span>${label}</span>${count ? `<span class="c">${count}</span>` : ""}</div>`;
+    const viewer = st.role === "VIEWER";
+    const user = viewer ? ["JP", "Jan Podgląd", "Podgląd"] : ["EK", "Ewa Kadrowa", "Administrator"];
+    return `<div class="app">
+      <aside class="sb">
+        <div class="brand"><span class="hrm">HR</span><span><b>Acme</b><small>HR System</small></span></div>
+        <nav>
+          <div><div class="sec">GŁÓWNE</div>${nav("pulpit", "Pulpit", "home")}${nav("rek", "Rekrutacja", "rec")}${nav("kadry", "Kadry", "hr")}${nav("dok", "Kalendarz dokumentów", "docs", st.badge ?? 6)}</div>
+          ${viewer ? "" : `<div><div class="sec">ZARZĄDZANIE</div>${nav("set", "Ustawienia", "set")}</div>`}
+        </nav>
+        <div class="me"><div class="u"><span class="ua">${user[0]}</span><span><span style="font-size:13px">${user[1]}</span><small>${user[2]}</small></span></div><div class="out" data-t="logout">Wyloguj</div></div>
+      </aside>
+      <div class="main">${body}${toast(st)}</div>
+      <div class="demo"><b>DEMO</b> · dane fikcyjne · usługi zewnętrzne zasymulowane</div>
+    </div>`;
+  }
+  const toast = (st) => st.toast ? `<div class="toast ${once.toastIn ? "toast-in" : ""}"><span class="ti">${ic("check", 13, "#fff", 2.5)}</span><span>${st.toast[0]}${st.toast[1] ? `<small>${st.toast[1]}</small>` : ""}</span></div>` : "";
+
+  // ---------- screens ----------
+  const S = {};
+
+  // Rekrutacja: list, candidate drawer, scheduling modal
+  function recRows(st) {
+    const rows = [];
+    if (st.js) rows.push({ ...NEW.js, ...st.js });
+    if (st.ms) rows.push({ ...NEW.ms, ...st.ms });
+    return rows.concat(BASE_ROWS);
+  }
+  S.rek = (st) => {
+    const rows = recRows(st);
+    const counts = { ...BASE_COUNTS };
+    for (const r of rows.slice(0, rows.length - BASE_ROWS.length)) counts[r.st]++;
+    const total = 16 + rows.length - BASE_ROWS.length;
+    const fchips = Object.keys(STATUS).map((s) => `<span class="fc"><i style="background:${STATUS[s][2]}"></i>${STATUS[s][0]} · ${counts[s]}</span>`).join("");
+    const tr = rows.map((r) => {
+      const cls = [once.rowIn === r.id ? "row-in" : "", st.dupHi && (r.id === "js" || r.id === "jo") ? "hl" : "", st.drawer === r.id ? "sel" : ""].join(" ");
+      const score = r.st === "PROCESSING" ? `<span class="proc">${spinner(12)} ocena AI…</span>`
+        : r.sc == null ? `<span class="mono" style="font-size:12px;color:#8a8a92">-</span>`
+        : `<div class="sbar"><span class="tk"><i class="${once.grow === r.id ? "grow" : ""}" style="width:${r.sc}%;background:${scoreColor(r.sc)}"></i></span><b>${r.sc}</b></div>`;
+      return `<div class="tr ${cls}" data-t="row-${r.id}">
+        <div class="who">${avatar(r.i, r.h)}<span><b>${r.n}</b><small>${r.ph}</small></span></div>
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.p}</span>
+        <span><span class="src ${r.src === "OLX" ? "olx" : "oth"}">${r.src}</span></span>
+        ${score}
+        <span>${chip(r.st, once.chipPop === r.id ? "pop" : "")}</span>
+        <span style="color:#3c3c42">${r.d}</span>
+        <span style="color:#8a8a92">${ic("right", 15)}</span>
+      </div>`;
+    }).join("");
+    return shell("rek", st, `<div class="ct">
+      <div class="ph"><div><h1>Rekrutacja</h1><div class="sub">${total} kandydatów w bazie. ${counts.TO_REVIEW} czeka na decyzję.</div></div><span class="b ink">${ic("userplus", 15)} Dodaj kandydata</span></div>
+      <div class="card flt">
+        <div class="row1"><span class="inp">${ic("search", 14)} Szukaj po imieniu, telefonie lub e-mailu…</span><span class="inp sel">Wszystkie ogłoszenia ${ic("chev", 14)}</span><span class="inp sel">Wszystkie źródła ${ic("chev", 14)}</span><span class="inp sel">Data ↓ ${ic("chev", 14)}</span></div>
+        <div class="chips"><span class="lb" style="margin-right:4px">Status:</span>${fchips}</div>
+      </div>
+      <div class="card tb" style="overflow:hidden">
+        <div class="th lb"><span>Kandydat</span><span>Ogłoszenie</span><span>Źródło</span><span>AI score</span><span>Status</span><span>Aplikacja</span><span></span></div>
+        ${tr}
+      </div>
+    </div>${st.drawer ? drawer(st) : ""}${st.modal ? schedule(st) : ""}`);
+  };
+  function drawer(st) {
+    const ms = { ...NEW.ms, ...st.ms };
+    const hist = st.tab === "hist";
+    const body = hist ? `<div class="hist ${once.tabIn ? "fade" : ""}" data-t="hist">
+        ${st.ms.st === "INTERVIEW_SCHEDULED" ? `<div><span>30.10.2026 14:12</span><b style="font-weight:500">Kalendarz Google (symulacja demo): utworzono wydarzenie „WP: Marek Spawalski”, 04.11.2026 11:30</b></div>
+        <div><span>30.10.2026 14:12</span><b style="font-weight:500">Umówiono spotkanie 04.11.2026 o 11:30</b></div>` : ""}
+        <div><span>30.10.2026 14:03</span><b style="font-weight:500">Ocena AI: 91/100 (próg 50) → Do przeglądu</b></div>
+        <div><span>30.10.2026 14:03</span><b style="font-weight:500">Zgłoszenie z formularza (OLX)</b></div>
+      </div>` : `
+      <div class="sc2">
+        <div class="scard" data-t="aiscore"><div class="lb" style="margin-bottom:8px">AI Score</div>
+          <div style="display:flex;align-items:flex-end;gap:12px"><span class="big tab" data-t="bigscore">${once.countScore ? 0 : 91}</span><span class="pill ok" style="margin-bottom:6px">HIGH</span></div>
+          <div class="sbar" style="margin-top:12px"><span class="tk"><i class="${once.countScore ? "grow" : ""}" style="width:91%;background:#2f7d4f"></i></span><b>91</b></div>
+        </div>
+        <div class="scard" style="background:#fff"><div class="lb" style="margin-bottom:8px">Dane podstawowe</div>
+          <div class="kv"><span>Telefon</span><b style="font-weight:500">+48 500 000 301</b><span>E-mail</span><b style="font-weight:500">marek.spawalski@…</b><span>Źródło</span><b style="font-weight:500">OLX</b><span>Ogłoszenie</span><b style="font-weight:500">Spawacz MIG/MAG (Niemcy)</b><span>Doświadczenie</span><b style="font-weight:500">6 lat</b><span>Oczekiwania</span><b style="font-weight:500">11000</b></div>
+        </div>
+      </div>
+      <div><div class="lb" style="margin-bottom:6px">Ocena AI</div><div class="quote" data-t="reason">„${MS_REASON}”</div></div>
+      <div><div class="lb" style="margin-bottom:6px">Notatka HR (wewnętrzna)</div><div class="note-in">Dodaj notatkę…</div></div>`;
+    return `<div class="scrim ${once.drawerIn ? "fade" : ""}"></div>
+    <div class="drawer ${once.drawerIn ? "slide-r" : ""}" data-t="drawer">
+      <div class="dh">
+        <div class="top">${avatar("MS", 150, 40)}<div style="flex:1"><div class="lb">Kandydat</div><h2>Marek Spawalski</h2><div style="font-size:12px;color:#5a5a62">+48 500 000 301</div></div><span class="b sm">${ic("pencil", 13)} Edytuj dane</span><span style="color:#5a5a62;padding:4px">${ic("x", 17)}</span></div>
+        <div class="meta">${chip(ms.st, once.chipPop === "ms" ? "pop" : "")}<span>Spawacz MIG/MAG (Niemcy)</span><span class="src olx">OLX</span><span>aplikacja 30 paź 26</span></div>
+        <div class="chg"><span class="lb">Zmień status:</span><span class="inp sel" style="padding:5px 10px;min-width:170px;color:#0a0a0b">${STATUS[ms.st][0]} ${ic("chev", 14)}</span></div>
+      </div>
+      <div class="tabs"><span class="${hist ? "" : "on"}">Ocena AI</span><span>CV</span><span class="${hist ? "on" : ""}" data-t="tab-hist">Historia</span></div>
+      <div class="dbody">${body}</div>
+      <div class="dfoot"><span class="b ok">${ic("check", 15)} Zaakceptuj</span><span class="b bad">${ic("ban", 15)} Odrzuć</span><span class="b brand" data-t="btn-schedule">${ic("cal", 15)} Umów spotkanie</span></div>
+    </div>`;
+  }
+  function schedule(st) {
+    const f = st.form;
+    const fld = (t, label, v, ph, extra = "", full = false) => `<div class="fld ${full ? "full" : ""}"><span class="lb">${label}</span><div class="in" data-t="${t}"><span>${v ? `<span class="v">${v}</span>` : `<span class="v"></span><span class="ph2">${ph}</span>`}</span>${extra}</div></div>`;
+    return `<div class="mback ${once.modalIn ? "fade" : ""}"><div class="modal ${once.modalIn ? "pop-in" : ""}">
+      <div class="mh">Umów spotkanie rekrutacyjne <span style="color:#5a5a62">${ic("x", 16)}</span></div>
+      <div class="mb">
+        ${fld("f-date", "Data", f.date, "dd.mm.rrrr", ic("cal", 14, "#5a5a62"))}
+        ${fld("f-time", "Godzina", f.time, "", ic("clock", 14, "#5a5a62"))}
+        ${fld("f-phone", "Numer telefonu", "500000301", "")}
+        ${fld("f-dur", "Czas spotkania", "30 min", "", ic("chev", 14, "#5a5a62"))}
+        ${fld("f-place", "Miejsce / info (opcjonalnie)", f.place, "np. biuro Katowice / link do spotkania", "", true)}
+      </div>
+      <div class="mf"><span class="b">Anuluj</span><span class="b brand" data-t="btn-confirm">${ic("cal", 15)} Potwierdź</span></div>
+    </div></div>`;
+  }
+
+  // Pulpit: KADRY synchronisation, document tiles, employee board
+  const FILES = [
+    { pre: "Bożena_Testowa BHP do ", d: "15.01.27", post: ".pdf", res: "BHP: 15.01.2027", k: "name" },
+    { pre: "Atrapowicz Czesław A1 DO ", d: "30.06.2027", post: ".pdf", res: "A1: 30.06.2027", k: "name" },
+    { pre: "Przykładowski Adam BL do ", d: "2.07.28", post: ".pdf", res: "BL: 02.07.2028", k: "name" },
+    { pre: "Danuta_Fikcyjna EKUZ 10.09.2027.pdf", res: "bez daty ważności w nazwie: treść czyta AI", k: "ai" },
+    { pre: "Przykładowski Adam Paszport.pdf", res: "brak daty w nazwie: treść czyta AI", k: "ai" },
+    { pre: "Atrapowicz Czesław zdjęcie.heic", res: "pominięty plik (HEIC)", k: "skip" }
+  ];
+  const tiles = (st) => {
+    const t = (cls, t2, label, n, sub, icon) => `<div class="tile ${cls} ${once.tilesTick ? "tick" : ""}"><span class="ic">${ic(icon, 18)}</span><div class="tx"><div class="lb">${label}</div><b data-t="${t2}">${n}</b><small>${sub}</small></div></div>`;
+    return `<div class="tiles">${t("bad", "t-bad", "Wygasłe (pilne)", st.tiles[0], "wymaga natychmiastowej akcji", "alertc")}${t("warn", "t-warn", "Wygasające wkrótce", st.tiles[1], "w progu ostrzeżenia typu", "clock")}${t("ok", "t-ok", "Aktualne", st.tiles[2], "wszystko w porządku", "check")}</div>`;
+  };
+  S.pulpit = (st) => {
+    const running = st.sync === "running", done = st.sync === "done";
+    const stream = FILES.slice(0, st.lines).map((f, i) => {
+      const name = f.d ? `${f.pre}<mark>${f.d}</mark>${f.post}` : f.pre;
+      const res = f.k === "name" ? `<span class="pill ok">${ic("check", 11, "currentColor", 2.5)} z nazwy pliku</span>${f.res}`
+        : f.k === "ai" ? `<span class="pill warn">do sprawdzenia</span>${f.res}` : `<span class="pill neut">pominięty</span>${f.res}`;
+      return `<div class="fl ${once.lineIn === i ? "line-in" : ""}"><span class="fn">${name}</span><span class="res">${res}</span></div>`;
+    }).join("");
+    const stat = (t, l, v) => `<span>${l}: <b data-t="${t}">${v}</b></span>`;
+    const body = done ? `<div class="sb2 ${once.sumIn ? "fade" : ""}">
+        <div style="display:flex;align-items:center;gap:8px">${ic("file", 15, "#5a5a62")}<b style="font-weight:600">Odczyt dat z dokumentów</b><span style="color:#5a5a62">tryb: włączony</span></div>
+        <div class="stats">${stat("s-files", "Pliki w folderach", st.stats[0])}${stat("s-rec", "Rozpoznane", st.stats[1])}${stat("s-name", "Z datą w nazwie", st.stats[2])}${stat("s-new", "Nowe wpisy", st.stats[3])}${stat("s-conf", "Potwierdzone wpisy ręczne", st.stats[4])}${stat("s-rev", "Do sprawdzenia", st.stats[5])}<span>Czas odczytu: <b>0,4 s</b></span></div>
+      </div>`
+      : running ? `<div class="sb2"><div class="stream" data-t="stream">${stream || '<div class="fl"><span class="fn" style="color:#8a8a92">Łączenie z folderem KADRY…</span><span></span></div>'}</div></div>`
+      : `<div class="sb2">Z przypisanym folderem: <b>12 z 16</b> · Pominięte pliki: <b>1</b> · Niedopasowani pracownicy: <b>4</b></div>`;
+    const brow = (n, name, city, lang, dl, pj, pjn, perm, bg) => `<div class="br" style="background:${bg}"><span style="color:#5a5a62">${n}</span><b style="font-weight:500">${name}</b><span>${city}</span><span>${lang}</span><span>${dl}</span><span><span class="pj">${pj}<small>${pjn}</small></span></span><span>${perm}</span></div>`;
+    return shell("pulpit", st, `<div class="ct">
+      <div class="ph"><div><h1>Pulpit</h1></div></div>
+      <div class="card sync">
+        <div class="sh">${ic("sync", 16, "#8a8a92", 1.75)}<h2>Pracownicy i foldery KADRY</h2>${done ? `<span class="when">ostatnia synchronizacja: przed chwilą</span><span class="rv ${once.sumIn ? "pop" : ""}">Do sprawdzenia: ${st.stats[5]} ${ic("arrow", 12)}</span>` : `<span class="when">ostatnia synchronizacja: wczoraj</span>`}
+          <span style="margin-left:auto;display:flex;gap:8px">${done ? `<span class="b sm" style="border:0">Szczegóły ${ic("chev", 13)}</span>` : ""}<span class="b brand sm ${running ? "busy" : ""}" data-t="sync">${running ? spinner(13, "#fff") + " Synchronizuję…" : "Synchronizuj"}</span></span>
+        </div>
+        ${body}
+      </div>
+      <div class="h2row"><h2>Kalendarz dokumentów</h2><span style="color:#2e4bd1;font-size:12.5px;font-weight:500">Otwórz →</span></div>
+      ${tiles(st)}
+      <div class="card board">
+        <div class="bh lb">Tablica pracowników</div>
+        <div class="br h"><span>LP.</span><span>IMIĘ I NAZWISKO</span><span>MIASTO</span><span>JĘZYK</span><span>PRAWO JAZDY</span><span>PROJEKTY</span><span>UPRAWNIENIA</span></div>
+        ${brow(1, "Danuta Fikcyjna", "Miasto", "-", "-", "B10", "Alfa", "Szkolenie BHP", "#fbe7e5")}
+        ${brow(2, "Olga Murarska", "Kielce", "DE 4, ENG 3", "+", "B10", "Alfa", "Szkolenie BHP", "#fbe7e5")}
+        ${brow(3, "Stefan Dźwigowy", "Rzeszów", "ENG 2", "+", "B20", "Beta", "Szkolenie BHP", "#eef6e4")}
+        ${brow(4, "Bartosz Szalunek", "Bielsko-Biała", "DE 4+", "+", "B30", "Gamma", "Szkolenie BHP", "#e3f4f7")}
+      </div>
+    </div>`);
+  };
+
+  // Kalendarz dokumentów: tiles and the "Do sprawdzenia" list
+  const REVIEW = [
+    { id: "a1bl", n: "Danuta Fikcyjna", ty: "typ niejednoznaczny: A1 / BL", f: "Danuta_Fikcyjna A1 BL do 30.06.27.pdf", fromName: "30.06.2027", fromText: "-", cal: "brak wpisu", why: "nazwa pliku pasuje do kilku typów" },
+    { id: "bhp", n: "Danuta Fikcyjna", ty: "BHP", f: "Danuta_Fikcyjna BHP do 29.06.27.pdf", fromName: "29.06.2027", fromText: "-", cal: "15.06.2027", why: "data w nazwie pliku inna niż w Kalendarzu (wpis ręczny)" },
+    { id: "ekuz", n: "Danuta Fikcyjna", ty: "EKUZ", f: "Danuta_Fikcyjna EKUZ 10.09.2027.pdf", fromName: "-", fromText: "10.09.2027", cal: "brak wpisu", why: "data odczytana z treści dokumentu", ai: true },
+    { id: "abhp", n: "Adam Przykładowski", ty: "BHP", f: "Przykładowski Adam BHP do 29.06.27.pdf", fromName: "29.06.2027", fromText: "-", cal: "15.06.2027", why: "data w nazwie pliku inna niż w Kalendarzu" },
+    { id: "pas", n: "Adam Przykładowski", ty: "Paszport", f: "Przykładowski Adam Paszport.pdf", fromName: "-", fromText: "20.05.2031", cal: "brak wpisu", why: "data odczytana z treści dokumentu", ai: true }
+  ];
+  S.dok = (st) => {
+    const rows = REVIEW.filter((r) => !st.gone.includes(r.id) || once.collapse === r.id).map((r) => {
+      const cls = [once.collapse === r.id ? "collapse" : "", st.hi === r.id ? "hl" : "", r.ai ? "ai" : ""].join(" ");
+      const cell = (l, v) => `<div class="cl"><small>${l}</small><strong>${v}</strong></div>`;
+      return `<div class="rvr ${cls}" data-t="r-${r.id}">
+        <div><b>${r.n}</b><div class="ty">${r.ty}</div><span class="fn">${r.f} ${ic("ext", 11)}</span></div>
+        ${cell("Z nazwy pliku", r.fromName)}${cell("Z treści", r.fromText)}${cell("W Kalendarzu", r.cal)}
+        <div class="act"><span class="b ink sm" data-t="ok-${r.id}">Zatwierdź</span><span class="b sm" data-t="skip-${r.id}">Pomiń</span></div>
+        <div class="why">${r.why}</div>
+      </div>`;
+    }).join("");
+    return shell("dok", st, `<div class="ct">
+      <div class="ph"><div><h1>Kalendarz dokumentów</h1></div></div>
+      ${tiles(st)}
+      <div class="card" style="overflow:hidden">
+        <div class="rvh">${ic("clip", 16, "#5a5a62", 1.75)}<b style="font-weight:600">Do sprawdzenia <span class="tab" style="color:#5a5a62">(${st.n})</span></b><small>daty z dokumentów w folderach KADRY, których automat nie wpisuje sam</small></div>
+        ${rows}
+      </div>
+    </div>`);
+  };
+
+  // Kadry: employee list and the profile wheel
+  const EMPS = [
+    { id: "ca", i: "CA", h: 30, n: "Czesław Atrapowicz", t: ["Elektryk"] },
+    { id: "ed", i: "ED", h: 260, n: "Edward Demowski", t: ["Operator CNC"] },
+    { id: "sd", i: "SD", h: 140, n: "Stefan Dźwigowy", t: ["Operator dźwigu"] },
+    { id: "df", i: "DF", h: 0, n: "Danuta Fikcyjna", t: ["Malarz", "Tynkarz"] },
+    { id: "rh", i: "RH", h: 200, n: "Ryszard Hydrauliczny", t: ["Hydraulik"] },
+    { id: "tk", i: "TK", h: 300, n: "Teresa Kafelkowa", t: ["Glazurnik"] }
+  ];
+  const WZ = { id: "wz", i: "WZ", h: 225, n: "Wiktor Zbrojny", t: ["Zbrojarz"] };
+  const SEGS = [
+    { key: "salary", label: "Wynagrodzenie", icon: "wallet", c: "#34d399", cf: "rgba(52,211,153,0.15)", cb: "rgba(52,211,153,0.28)", cg: "rgba(52,211,153,0.45)", a: -90, ox: 0, oy: -7 },
+    { key: "info", label: "Informacje", icon: "file", c: "#60a5fa", cf: "rgba(96,165,250,0.15)", cb: "rgba(96,165,250,0.28)", cg: "rgba(96,165,250,0.45)", a: 0, ox: 7, oy: 0 },
+    { key: "exp", label: "Doświadczenie", icon: "brief", c: "#c084fc", cf: "rgba(192,132,252,0.15)", cb: "rgba(192,132,252,0.28)", cg: "rgba(192,132,252,0.45)", a: 90, ox: 0, oy: 7 },
+    { key: "time", label: "Czas pracy", icon: "clock", c: "#fb923c", cf: "rgba(251,146,60,0.15)", cb: "rgba(251,146,60,0.28)", cg: "rgba(251,146,60,0.45)", a: 180, ox: -7, oy: 0 }
+  ];
+  const pt = (r, deg) => { const a = deg * Math.PI / 180; return [(r * Math.cos(a)).toFixed(2), (r * Math.sin(a)).toFixed(2)]; };
+  const arc = (a) => {
+    const R = 96, r = 36, a1 = a - 44, a2 = a + 44;
+    const [x1, y1] = pt(R, a1), [x2, y2] = pt(R, a2), [x3, y3] = pt(r, a2), [x4, y4] = pt(r, a1);
+    return `M${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2} L${x3} ${y3} A${r} ${r} 0 0 0 ${x4} ${y4} Z`;
+  };
+  function wheel(st) {
+    const segs = SEGS.map((s) => {
+      const state = st.seg ? (st.seg === s.key ? "lock" : "dim") : "";
+      return `<g class="seg ${state} ${once.lock === s.key ? "lock-in" : ""}" style="--cf:${s.cf};--cb:${s.cb};--cg:${s.cg};--ox:${s.ox}px;--oy:${s.oy}px"><path class="sf" d="${arc(s.a)}" stroke="rgba(255,255,255,.22)" stroke-width=".7"/></g>`;
+    }).join("");
+    const labels = SEGS.map((s) => {
+      const [x, y] = pt(66, s.a), state = st.seg ? (st.seg === s.key ? "lock" : "dim") : "";
+      return `<div class="wl ${state}" data-t="seg-${s.key}" style="left:${50 + x / 2.12}%;top:${50 + y / 2.12}%;--c:${s.c};--cb:${s.cb};--cg:${s.cg}"><div class="li">${ic(s.icon, 15)}</div><span>${s.label}</span></div>`;
+    }).join("");
+    return `<div class="wstage ${once.wheelIn ? "w-in" : ""}"><svg viewBox="-106 -106 212 212"><circle class="ambient" r="104"/><circle class="ring" r="96.5"/>${segs}</svg>${labels}<div class="wcenter"><i>WZ</i></div></div>`;
+  }
+  function panel(st) {
+    const seg = SEGS.find((s) => s.key === st.seg);
+    if (!seg) return "";
+    const head = `<div class="wch"><span class="ib" style="background:${seg.cb};color:${seg.c};border:1px solid ${seg.c}">${ic(seg.icon, 15)}</span><div style="flex:1"><div class="lb">${seg.label}</div><b>Wiktor Zbrojny</b></div><span style="color:rgba(255,255,255,.5)">${ic("x", 16)}</span></div>`;
+    let body = "";
+    if (st.seg === "time") {
+      const m = (mo, h) => `<tr><td style="font-weight:500">${mo} 2026</td><td class="mono" style="font-size:11px">B30</td><td style="font-weight:500">${h}h</td><td>22 dni</td><td>1</td><td style="color:rgba(255,255,255,.4)">0</td></tr>`;
+      body = `<div class="pnl"><h4>Historia miesięczna</h4><table class="dt"><thead><tr><th>Miesiąc</th><th>Projekty</th><th>Godziny</th><th>Za granicą</th><th>Zjazdy</th><th>L4</th></tr></thead><tbody>${m("Lipiec", 160)}${m("Sierpień", 164)}${m("Wrzesień", 168)}</tbody></table></div>
+        <div class="pnl" data-t="pool"><h4>Pobyt za granicą i nieobecności · 2026</h4>
+          <div class="prow"><span>Pobyt za granicą (pula 183 dni)</span><b>66 / 183 dni</b></div>
+          <div class="ptrack"><i class="${once.poolGrow ? "grow" : ""}" style="width:36%"></i></div>
+          <div class="prow"><span>Zjazdy do Polski</span><b>3 razy</b></div>
+          <div class="prow" style="margin-top:5px"><span>Zwolnienia lekarskie (L4)</span><b>0 dni</b></div>
+        </div>`;
+    } else if (st.seg === "info") {
+      const viewer = st.role === "VIEWER";
+      body = `<div class="pnl"><h4>Dane osobowe</h4><div class="dkv">
+        <span>Imię</span><em>Wiktor</em><span>Nazwisko</span><em>Zbrojny</em><span>Data urodzenia</span><em>04.11.1989</em>
+        ${viewer ? "" : `<span data-t="kv-pesel">PESEL</span><em class="mono">89000000011</em>`}
+        <span>Email</span><em>w.zbrojny@acme.example</em><span>Telefon</span><em>+48 600 000 011</em>
+        <span>Adres</span><em>ul. Demonstracyjna 10, 00-000 Opole</em><span data-t="kv-hired">Data zatrudnienia</span><em>25.09.2025</em>
+        <span>Typ umowy</span><em>Umowa o pracę</em><span>Przełożony</span><em>Marek Przykładowy</em>
+        ${viewer ? "" : `<span data-t="kv-konto">Nr konta</span><em class="mono">-</em>`}
+      </div></div>`;
+    } else if (st.seg === "salary") {
+      body = st.role === "VIEWER"
+        ? `<div class="pnl"><div class="nod" style="display:flex;gap:9px;align-items:center">${ic("lock", 15)} Brak dostępu do danych płacowych (rola Podgląd).</div></div>`
+        : `<div class="pnl"><h4>Aktualna stawka</h4><div class="dkv"><span>Typ umowy</span><em>Umowa o pracę</em><span>Stawka godzinowa</span><em style="color:#34d399">34,00 zł/h</em></div></div>`;
+    }
+    return `<div class="wc ${once.contentIn ? "c-in" : ""}">${head}${body}</div>`;
+  }
+  S.kadry = (st) => {
+    const list = (st.q && "zbrojny".startsWith(st.q.toLowerCase().slice(0, 5)) && st.filtered ? [WZ] : EMPS).map((e) => `
+      <div class="emp ${st.sel === e.id ? "sel" : ""} ${once.listIn ? "line-in" : ""}" data-t="emp-${e.id}">${avatar(e.i, e.h, 36)}<div style="flex:1;min-width:0"><b>${e.n}</b>${e.t.map((t) => `<span class="tg">${t}</span>`).join(" ")}
+        <div class="ea"><span class="pill ok" style="font-size:10.5px">Aktywny</span>${st.role === "VIEWER" ? "" : `<span class="b sm" style="padding:3px 8px">Edytuj</span><span class="b sm" style="padding:3px 8px">Dezaktywuj</span>`}</div></div></div>`).join("");
+    const host = st.sel ? `
+      <div class="whead"><span><b>Wiktor Zbrojny</b><small>Zbrojarz · B30 Gamma</small></span><span class="b dk sm" data-t="pdf">${ic("file", 13)} Podgląd PDF</span></div>
+      ${wheel(st)}${panel(st)}`
+      : `<div class="wempty">Wybierz pracownika z listy, aby zobaczyć profil.</div>`;
+    return shell("kadry", st, `<div class="ct">
+      <div class="ph"><div><h1>Kadry</h1></div></div>
+      <div class="kad">
+        <div class="card elist">
+          <div class="eh"><div style="display:flex;justify-content:space-between;align-items:center"><span class="lb">Pracownicy</span><span class="lb">${st.filtered ? "1 z 16" : "13 z 16"}</span></div>
+            <div class="seg3"><span class="on">Aktywni 13</span><span>Nieaktywni 3</span><span>Wszyscy 16</span></div>
+            <div class="fld"><div class="in" data-t="search" style="padding:7px 10px">${ic("search", 14, "#8a8a92")}<span style="flex:1;margin-left:8px"><span class="v">${st.q || ""}</span>${st.q ? "" : '<span class="ph2">Szukaj pracownika…</span>'}</span></div></div>
+          </div>
+          ${list}
+        </div>
+        <div class="wheel-host">${host}</div>
+      </div>
+    </div>${st.pdf ? pdf(st) : ""}${st.anno ? `<div class="anno ${once.annoIn ? "pop-in" : ""}" style="left:${st.anno.x}px;top:${st.anno.y}px">${st.anno.text}</div>` : ""}`);
+  };
+  function pdf(st) {
+    const L = {
+      pl: { t: "Profil pracownika", s: "Profil kompetencyjny", pos: "Stanowisko", by: "Rok urodzenia", rh: "Historia stanowisk", ce: "Kursy i certyfikaty", sk: "Umiejętności", la: "Języki", pr: "obecnie", g: "Wygenerowano",
+        vPos: "Zbrojarz", vRh: "Zbrojarz, Budowy", vCe: "Szkolenie BHP", vSk: "Zbrojarz, Praca w zespole" },
+      de: { t: "Mitarbeiterprofil", s: "Kompetenzprofil", pos: "Position", by: "Geburtsjahr", rh: "Beruflicher Werdegang", ce: "Kurse und Zertifikate", sk: "Fähigkeiten", la: "Sprachen", pr: "laufend", g: "Erstellt am",
+        vPos: "Eisenflechter", vRh: "Eisenflechter, Baustellen", vCe: "Arbeitsschutzschulung (BHP)", vSk: "Eisenflechten, Teamarbeit" },
+      en: { t: "Employee profile", s: "Competence profile", pos: "Position", by: "Year of birth", rh: "Employment history", ce: "Courses and certificates", sk: "Skills", la: "Languages", pr: "present", g: "Generated on",
+        vPos: "Rebar fixer", vRh: "Rebar fixer, construction sites", vCe: "Health and safety training (BHP)", vSk: "Rebar fixing, teamwork" },
+    }[st.pdf] || {};
+    const lang = (l) => `<span class="${st.pdf === l ? "on" : ""}" data-t="lang-${l}">${l}</span>`;
+    return `<div class="mback ${once.pdfIn ? "fade" : ""}"><div class="pdfm ${once.pdfIn ? "pop-in" : ""}">
+      <div class="mh"><div style="display:flex;align-items:center;gap:12px"><h2>Podgląd PDF</h2><span class="lg">${lang("pl")}${lang("de")}${lang("en")}</span></div>
+        <div style="display:flex;gap:8px"><span class="b ink ${st.busy ? "busy" : ""}" data-t="gen">${st.busy ? spinner(14) + " Generowanie…" : ic("dl", 14) + " Generuj PDF"}</span><span class="b" style="padding:7px">${ic("x", 15)}</span></div></div>
+      <div class="pdfb"><div class="page ${once.pageSwap ? "swap-in" : ""}" data-t="page">
+        <div class="pt"><small>${L.s}</small><b>${L.t}</b></div>
+        <div class="pn">Wiktor Zbrojny</div>
+        <dl><dt>${L.pos}</dt><dd>${L.vPos}</dd><dt>${L.by}</dt><dd>1989</dd><dt>${L.rh}</dt><dd>${L.vRh} (11.2024, ${L.pr})</dd><dt>${L.ce}</dt><dd>${L.vCe}</dd><dt>${L.sk}</dt><dd>${L.vSk}</dd><dt>${L.la}</dt><dd>DE 3</dd></dl>
+        <div class="pf">${L.g}: 30.10.2026 · Acme</div>
+      </div></div>
+    </div></div>`;
+  }
+
+  S.login = () => `<div class="login"><div class="lcard">
+      <span class="hrm">HR</span><h2>Acme</h2><div class="lsub">HR System</div>
+      <p>Zaloguj się, aby przejść do systemu.</p>
+      <div class="gbtn">Zaloguj przez Google</div>
+      <div class="tests"><span>Logowanie testowe: ADMIN</span><span>Logowanie testowe: HR</span><span data-t="login-viewer">Logowanie testowe: VIEWER</span></div>
+    </div><div class="demo" style="position:absolute"><b>DEMO</b> · dane fikcyjne · usługi zewnętrzne zasymulowane</div></div>`;
+
+  S.outro = () => `<div class="outro in">
+      <span class="hrm">HR</span>
+      <h2>Koniec dnia w kadrach</h2>
+      <ul>
+        <li>Dwa zgłoszenia przyjęte z formularza: jedno ocenione przez AI, drugie oznaczone jako możliwy duplikat.</li>
+        <li>Spotkanie umówione, z wpisem w kalendarzu zespołu i w historii kandydata.</li>
+        <li>Daty z Dysku w kalendarzu dokumentów. Propozycje AI zatwierdził albo pominął człowiek.</li>
+      </ul>
+      <div class="row"><span>AI tylko proponuje</span><span>Ręczne wpisy są nienaruszalne</span><span>Uprawnienia z bazy przy każdym żądaniu</span></div>
+    </div>`;
+
+  // ---------- playback engine ----------
+  let run = 0, paused = false, speed = 1, current = 0, sceneElapsed = 0, started = false;
+  class Stop extends Error {}
+  const wait = (ms) => new Promise((resolve, reject) => {
+    const id = run;
+    let left = ms, last = performance.now();
+    const tick = (now) => {
+      if (id !== run) return reject(new Stop());
+      const dt = Math.min(now - last, 100); last = now;
+      if (!paused) { left -= dt * speed; sceneElapsed += dt * speed; }
+      left <= 0 ? resolve() : requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  let state = {}, view = null, once = {};
+  const render = () => { screen.innerHTML = S[view](state); once = {}; };
+  const set = (patch, fx = {}) => { Object.assign(state, patch); once = fx; render(); };
+  const show = (name, st = {}, fx = {}) => {
+    if (name !== view) { screen.classList.remove("enter"); void screen.offsetWidth; screen.classList.add("enter"); cam.reset(); }
+    view = name; state = st; once = fx; render();
+  };
+  const el = (t) => screen.querySelector(`[data-t="${t}"]`);
+  const at = (t, cap = 70) => {
+    const e = el(t);
+    if (!e) return [cx, cy];
+    const r = e.getBoundingClientRect(), s = stage.getBoundingClientRect(), k = cam.eff;
+    return [(r.left - s.left) / k + Math.min(r.width / k / 2, cap), (r.top - s.top) / k + r.height / k / 2];
+  };
+  let cx = 640, cy = 420;
+  async function moveTo(t, ms = 700) {
+    const [x, y] = at(t);
+    const d = reduced ? 0 : ms / speed;
+    cursor.style.transition = `transform ${d}ms cubic-bezier(.45,.05,.25,1)`;
+    cursor.style.transform = `translate(${x - 5}px, ${y - 3}px)`;
+    cx = x; cy = y;
+    await wait(reduced ? 80 : ms);
+  }
+  async function look(t, z = 1.25, ms = 650) {
+    cursor.classList.remove("hide");
+    const [x, y] = at(t);
+    if (z) cam.focus(x, y, z);
+    await moveTo(t, ms);
+  }
+  async function click(t, ms = 650, z = 1.3) {
+    cursor.classList.remove("hide");
+    const [x, y] = at(t);
+    if (z) cam.focus(x, y, z);
+    await moveTo(t, ms);
+    const r = document.createElement("span");
+    r.className = "ripple"; r.style.left = `${cx}px`; r.style.top = `${cy}px`;
+    stage.appendChild(r); setTimeout(() => r.remove(), 700);
+    const target = el(t); target && target.classList.add("pressed");
+    await wait(170);
+    target && target.classList.remove("pressed");
+  }
+  // typing updates the field in place, so the open modal or list keeps its entrance animation
+  async function type(t, key, text, per = 38) {
+    await click(t, 600, 1.35);
+    for (let i = 1; i <= text.length; i++) {
+      state.form ? (state.form[key] = text.slice(0, i)) : (state[key] = text.slice(0, i));
+      const box = el(t);
+      if (box) {
+        box.classList.add("focus");
+        const ph = box.querySelector(".ph2"); ph && ph.remove();
+        box.querySelector(".v").textContent = text.slice(0, i);
+      }
+      await wait(text[i - 1] === " " ? per + 30 : per);
+    }
+    await wait(180);
+    el(t) && el(t).classList.remove("focus");
+  }
+  // counters tick in place; the caller commits the final value to state
+  async function countTo(items, ms = 800) {
+    const steps = Math.max(1, Math.round(ms / 40));
+    for (let i = 1; i <= steps; i++) {
+      for (const [t, from, to] of items) { const e = el(t); if (e) e.textContent = Math.round(from + (to - from) * (i / steps)); }
+      await wait(ms / steps);
+    }
+  }
+  const capEl = document.getElementById("caption");
+  const say = (k, text) => {
+    document.getElementById("kicker").textContent = k;
+    capEl.textContent = text;
+    capEl.classList.remove("swap"); void capEl.offsetWidth; capEl.classList.add("swap");
+    pfNotify();
+  };
+
+  const rec = (o = {}) => Object.assign({ ms: null, js: null, drawer: null, modal: false, tab: "ai", toast: null, dupHi: false, form: { date: "", time: "10:00", place: "" }, badge: 6 }, o);
+  const AFTER1 = () => ({ ms: { st: "TO_REVIEW", sc: 91 }, js: { st: "DUPLICATE_REVIEW", sc: null } });
+  const kad = (o = {}) => Object.assign({ q: "", filtered: false, sel: null, seg: null, pdf: null, busy: false, role: "ADMIN", anno: null, toast: null, badge: 6 }, o);
+
+  const scenes = [
+    { name: "Zgłoszenie", est: 9500, run: async () => {
+      cursor.classList.add("hide");
+      show("rek", rec());
+      say("Zgłoszenie", "Kandydat wysyła formularz z ogłoszenia na OLX. Aplikacja dostaje podpisany webhook, ten sam co na produkcji.");
+      await wait(1300);
+      cam.focus(640, 330, 1.16);
+      set({ ms: { st: "PROCESSING", sc: null }, toast: ["Nowe zgłoszenie z formularza", "Marek Spawalski · podpis webhooka poprawny"] }, { rowIn: "ms", toastIn: 1 });
+      await wait(1900);
+      say("Ocena AI", "CV trafia do oceny dopasowania do wymagań ogłoszenia. Wynik 91 przekracza próg, więc status to „Do przeglądu”.");
+      set({ ms: { st: "TO_REVIEW", sc: 91 }, toast: null }, { grow: "ms", chipPop: "ms" });
+      await wait(2000);
+      set({ js: { st: "PROCESSING", sc: null }, toast: ["Nowe zgłoszenie z formularza", "Jan Spawacki · podpis webhooka poprawny"] }, { rowIn: "js", toastIn: 1 });
+      await wait(1100);
+      cam.reset();
+      set({ js: { st: "DUPLICATE_REVIEW", sc: null }, toast: null, dupHi: true }, { chipPop: "js" });
+      say("Duplikat", "Ten sam numer w innym zapisie, to samo ogłoszenie: „Możliwy duplikat”, bez wywołania AI. Decyzję podejmie człowiek.");
+      await wait(2900);
+    } },
+    { name: "Ocena AI", est: 6900, run: async () => {
+      cam.reset();
+      show("rek", rec(AFTER1()));
+      say("Ocena AI", "Ewa otwiera kandydata. Wynik, pewność i uzasadnienie są w karcie; w demo ocenia lokalny ewaluator zamiast Gemini.");
+      await click("row-ms", 650, 1.18);
+      set({ drawer: "ms" }, { drawerIn: 1, countScore: 1 });
+      countTo([["bigscore", 0, 91]], 900).catch(() => {});
+      await look("aiscore", 1.3, 700);
+      await wait(1700);
+      say("Ocena AI", "AI tylko proponuje. Próg z Ustawień decyduje, kto trafia do przeglądu, a o kandydacie decyduje człowiek.");
+      await look("reason", 1.28, 650);
+      await wait(2600);
+    } },
+    { name: "Spotkanie", est: 9300, run: async () => {
+      cam.reset();
+      show("rek", rec({ ...AFTER1(), drawer: "ms" }));
+      say("Spotkanie", "Umówienie spotkania: data, godzina, czas trwania i miejsce. Telefon podpowiada się z formularza.");
+      await click("btn-schedule", 650);
+      set({ modal: true }, { modalIn: 1 });
+      await wait(350);
+      await type("f-date", "date", "04.11.2026", 32);
+      await type("f-time", "time", "11:30", 50);
+      await type("f-place", "place", "Biuro, sala 1 (fikcyjne)", 24);
+      await click("btn-confirm", 600);
+      set({ modal: false, ms: { st: "INTERVIEW_SCHEDULED", sc: 91 }, toast: ["Spotkanie umówione."] }, { toastIn: 1, chipPop: "ms" });
+      say("Spotkanie", "Status „Spotkanie zaplanowane”. Wydarzenie trafia do Kalendarza Google zespołu, w demo do symulowanego kalendarza.");
+      await wait(1000);
+      await click("tab-hist", 600, 1.25);
+      set({ tab: "hist" }, { tabIn: 1 });
+      await look("hist", 1.22, 500);
+      await wait(1900);
+    } },
+    { name: "Dysk KADRY", est: 9300, run: async () => {
+      cam.reset();
+      show("pulpit", { sync: "idle", lines: 0, stats: [0, 0, 0, 0, 0, 0], tiles: [5, 5, 19], badge: 5 });
+      say("Dysk KADRY", "Pulpit. Synchronizacja czyta folder KADRY na Dysku Google; w demo to atrapa Dysku z fikcyjnymi plikami.");
+      await click("sync", 650, 1.22);
+      set({ sync: "running" });
+      await look("stream", 1.2, 500);
+      say("Daty z nazw", "Najpierw algorytm: data z nazwy pliku trafia do kalendarza. Za darmo, powtarzalnie i bez wysyłania danych.");
+      for (let i = 1; i <= FILES.length; i++) {
+        set({ lines: i }, { lineIn: i - 1 });
+        if (i === 4) say("AI tylko tam", "Plik bez daty w nazwie czyta AI, po zgodzie klienta. Wynik nie idzie do kalendarza, tylko na listę „Do sprawdzenia”.");
+        await wait(i < 4 ? 620 : 900);
+      }
+      await wait(300);
+      cam.reset();
+      set({ sync: "done", stats: [0, 0, 0, 0, 0, 0] }, { sumIn: 1 });
+      await countTo([["s-files", 0, 44], ["s-rec", 0, 26], ["s-name", 0, 22], ["s-new", 0, 13], ["s-conf", 0, 3], ["s-rev", 0, 10], ["t-bad", 5, 6], ["t-warn", 5, 7], ["t-ok", 19, 28]], 900);
+      Object.assign(state, { stats: [44, 26, 22, 13, 3, 10], tiles: [6, 7, 28], badge: 6 });
+      set({}, { tilesTick: 1 });
+      await wait(1300);
+    } },
+    { name: "Do sprawdzenia", est: 8600, run: async () => {
+      cam.reset();
+      show("dok", { tiles: [6, 7, 28], n: 10, gone: [], hi: null, toast: null, badge: 6 });
+      say("Do sprawdzenia", "Wynik automatu czeka na człowieka. EKUZ: datę 10.09.2027 AI odczytało z treści dokumentu.");
+      set({ hi: "ekuz" });
+      await look("r-ekuz", 1.22, 650);
+      await wait(1200);
+      await click("ok-ekuz", 600, 1.3);
+      set({ gone: ["ekuz"], n: 9, hi: null, toast: ["Zatwierdzono: EKUZ, Danuta Fikcyjna", "Wpis w kalendarzu: 10.09.2027"] }, { collapse: "ekuz", toastIn: 1 });
+      await wait(450);
+      cam.reset();
+      await countTo([["t-ok", 28, 29]], 500);
+      state.tiles = [6, 7, 29];
+      say("Ręczne wpisy", "BHP: data w nazwie pliku różni się od ręcznego wpisu. Automat nie nadpisze człowieka, więc Ewa pomija propozycję.");
+      set({ hi: "bhp", toast: null });
+      await look("r-bhp", 1.22, 650);
+      await wait(1400);
+      await click("skip-bhp", 600, 1.3);
+      set({ gone: ["ekuz", "bhp"], n: 8, hi: null }, { collapse: "bhp" });
+      await wait(1500);
+    } },
+    { name: "Profil i PDF", est: 16900, run: async () => {
+      cam.reset();
+      show("kadry", kad());
+      say("Profil", "Kadry: wyszukiwanie pracownika i profil w formie koła: informacje, doświadczenie, wynagrodzenie, czas pracy.");
+      await type("search", "q", "Zbroj", 55);
+      set({ filtered: true }, { listIn: 1 });
+      await click("emp-wz", 600, 1.2);
+      cam.reset();
+      set({ sel: "wz" }, { wheelIn: 1 });
+      await wait(1200);
+      say("Czas pracy", "Czas pracy pilnuje puli 183 dni pobytu za granicą. Wiktor ma już 66 dni na budowie B30 w Niemczech.");
+      await click("seg-time", 650, 1.2);
+      set({ seg: "time" }, { lock: "time", contentIn: 1, poolGrow: 1 });
+      await look("pool", 1.3, 600);
+      await wait(2600);
+      say("PDF", "Profil kompetencji jako PDF: PL, DE albo EN, z poprawkami treści przed wygenerowaniem i bez danych wrażliwych.");
+      await click("pdf", 600, 1.25);
+      cam.reset();
+      set({ pdf: "pl" }, { pdfIn: 1 });
+      await wait(1500);
+      await click("lang-de", 550, 1.3);
+      set({ pdf: "de" }, { pageSwap: 1 });
+      await look("page", 1.12, 500);
+      await wait(2300);
+      await click("gen", 550, 1.3);
+      set({ busy: true });
+      await wait(800);
+      set({ busy: false, toast: ["Profil PDF (DE) wygenerowany."] }, { toastIn: 1 });
+      await wait(1900);
+    } },
+    { name: "Uprawnienia", est: 9600, run: async () => {
+      cam.reset();
+      show("kadry", kad({ q: "Zbroj", filtered: true, sel: "wz", seg: "info" }));
+      say("Uprawnienia", "Administrator widzi pełny PESEL. Sprawdźmy ten sam profil po zalogowaniu z rolą Podgląd.");
+      await look("kv-pesel", 1.35, 650);
+      await wait(1300);
+      await click("logout", 650, 1.2);
+      show("login", {});
+      await wait(400);
+      await click("login-viewer", 650, 1.3);
+      show("kadry", kad({ q: "Zbroj", filtered: true, sel: "wz", seg: "info", role: "VIEWER" }), { wheelIn: 1, contentIn: 1 });
+      say("Podgląd", "Jan Podgląd nie dostaje z serwera PESEL-u, numeru konta ani płac. Uprawnienia serwer sprawdza w bazie przy każdym żądaniu.");
+      await wait(500);
+      const [hx, hy] = at("kv-hired");
+      set({ anno: { x: hx + 150, y: hy - 72, text: "Brak wierszy PESEL i Nr konta: serwer ich nie wysłał" } }, { annoIn: 1 });
+      cam.focus(hx + 220, hy - 50, 1.22);
+      await wait(2000);
+      set({ anno: null });
+      await click("seg-salary", 650, 1.25);
+      set({ seg: "salary" }, { lock: "salary", contentIn: 1 });
+      await wait(1800);
+    } },
+    { name: "Koniec", est: 5000, run: async () => {
+      cursor.classList.add("hide");
+      cam.reset();
+      show("outro");
+      say("Koniec", "Automat przyjął, policzył i podpowiedział. Każdą decyzję o kandydacie i dokumencie podjął człowiek.");
+      await wait(5000);
+    } }
+  ];
+
+  const total = scenes.reduce((s, x) => s + x.est, 0);
+  const chapters = document.getElementById("chapters");
+  chapters.innerHTML = scenes.map((s, i) => `<li><button type="button" data-i="${i}"><b>${i + 1}</b>${s.name}</button></li>`).join("");
+  chapters.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { started = true; play(+b.dataset.i); } });
+  const playBtn = document.getElementById("playBtn");
+  const setPaused = (p) => { paused = p; playBtn.textContent = p ? "Odtwórz" : "Pauza"; pfNotify(); };
+  let finished = false;
+  const startOrResume = () => {
+    if (!started || finished) { started = true; return play(0); }
+    setPaused(false);
+  };
+  playBtn.addEventListener("click", () => { if (!started || finished) return startOrResume(); setPaused(!paused); });
+  document.getElementById("restartBtn").addEventListener("click", () => { started = true; play(0); });
+  const speeds = [1, 1.5, 2];
+  document.getElementById("speedBtn").addEventListener("click", (e) => {
+    speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length];
+    e.currentTarget.textContent = `Tempo ${String(speed).replace(".", ",")}×`;
+  });
+
+  async function play(from) {
+    const id = ++run; finished = false; setPaused(false);
+    for (let i = from; i < scenes.length; i++) {
+      current = i; sceneElapsed = 0;
+      chapters.querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-current", j === i ? "step" : "false"));
+      // keep the current chapter visible on narrow screens (horizontal only, never scrolls the page)
+      const cb = chapters.children[i];
+      if (cb && chapters.scrollWidth > chapters.clientWidth) chapters.scrollTo({ left: Math.max(0, cb.offsetLeft - chapters.offsetLeft - 16), behavior: reduced ? "auto" : "smooth" });
+      cursor.classList.remove("hide");
+      try { await scenes[i].run(); } catch (err) { if (err instanceof Stop) return; throw err; }
+      if (id !== run) return;
+    }
+    finished = true; playBtn.textContent = "Odtwórz ponownie"; pfNotify();
+  }
+  const bar = document.getElementById("bar");
+  (function progress() {
+    if (document.documentElement.classList.contains("embed")) return;
+    const before = scenes.slice(0, current).reduce((s, x) => s + x.est, 0);
+    const p = !started ? 0 : finished ? 1 : (before + Math.min(sceneElapsed, scenes[current].est)) / total;
+    bar.style.width = `${(p * 100).toFixed(1)}%`;
+    requestAnimationFrame(progress);
+  })();
+
+  // Portfolio copy: in ?embed the portfolio page drives the player (same messages as the other demos)
+  const EMBED = document.documentElement.classList.contains("embed");
+  function pfState() {
+    const before = scenes.slice(0, current).reduce((s, x) => s + x.est, 0);
+    return { demo: "state", names: scenes.map((s) => s.name), est: scenes.map((s) => s.est), cur: current, paused: paused || !started, ended: finished, speed,
+      progress: !started ? 0 : finished ? 1 : (before + Math.min(sceneElapsed, scenes[current].est)) / total,
+      kicker: document.getElementById("kicker").textContent, caption: capEl.textContent };
+  }
+  function pfNotify() { if (EMBED) parent.postMessage(pfState(), "*"); }
+  if (EMBED) {
+    addEventListener("message", (e) => {
+      const m = e.data;
+      if (!m || m.demo !== "cmd") return;
+      if (m.action === "play") startOrResume();
+      else if (m.action === "pause") { if (started && !finished) setPaused(true); }
+      else if (m.action === "chapter") { started = true; play(m.value); }
+      else if (m.action === "speed") speed = m.value;
+      pfNotify();
+    });
+    setInterval(() => { if (started && !paused && !finished) pfNotify(); }, 250);
+  }
+  const LINE = window.Line || { embed: false, autoplay: true, on() {} };
+  LINE.on("play", startOrResume);
+  LINE.on("pause", () => { if (started && !finished) setPaused(true); });
+  LINE.on("restart", () => { started = true; play(0); });
+  if (LINE.autoplay) {
+    started = true;
+    play(0);
+  } else {
+    // embedded and waiting: the opening screen is the poster until the portfolio page sends "play"
+    cursor.classList.add("hide");
+    show("rek", rec());
+    screen.classList.remove("enter");
+    playBtn.textContent = "Odtwórz";
+    say(scenes[0].name, "Kandydat wysyła formularz z ogłoszenia na OLX. Aplikacja dostaje podpisany webhook, ten sam co na produkcji.");
+    capEl.classList.remove("swap");
+  }
+})();
+</script>
+</body>
+</html>

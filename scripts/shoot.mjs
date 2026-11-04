@@ -36,13 +36,12 @@ for (let y = 0; y < total; y += Math.round(H * 0.5)) {
 }
 await page.waitForTimeout(1500);
 
-const ids = await page.evaluate(() =>
-  [...document.querySelectorAll("main > section, main > .marquee, footer")].map((s) => s.id || s.className.split(" ")[0]),
-);
+const SECTIONS = "main > section, main > .marquee, footer";
+const ids = await page.evaluate((sel) => [...document.querySelectorAll(sel)].map((s) => s.id || s.className.split(" ")[0]), SECTIONS);
 let n = 1;
-for (const id of ids) {
+for (const [i, id] of ids.entries()) {
   if (id === "start") continue;
-  const loc = id === "foot" || id === "marquee" ? page.locator(`.${id}`).first() : page.locator(`#${id}`);
+  const loc = page.locator(SECTIONS).nth(i);
   try {
     await loc.scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);

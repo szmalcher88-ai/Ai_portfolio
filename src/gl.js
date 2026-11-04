@@ -1,5 +1,6 @@
 // Hero field: unread input (grey dots) drifts from the left, passes the checks at the gate,
 // leaves as tidy rows (green dashes) or, for a few items, drops to the "for a person" lane (amber).
+// Once a person has checked an item it flashes, turns green and floats up to the verified rows.
 // One draw call; every particle's path is a pure function of its seeds and time, so the CPU only
 // updates a handful of uniforms per frame.
 
@@ -18,6 +19,7 @@ uniform vec3 uLane;
 varying float vA;
 varying float vKind;
 varying float vFlash;
+varying float vGreen;
 
 float wobble(float x, float s, float t) {
   return sin(x * 2.1 + s * 19.1 + t * 0.23) * 0.55
@@ -27,12 +29,14 @@ float wobble(float x, float s, float t) {
 
 void main() {
   float lanes = uLane.x;
-  float speed = mix(0.016, 0.034, aSeed.y);
+  float isHuman = step(aSeed.w, 0.065);
+  // items for a person run at half pace, so past the gate they have time for the whole round trip
+  // (down to the person and back up to the verified rows) at one steady speed
+  float speed = mix(0.016, 0.034, aSeed.y) * mix(1.0, 0.5, isHuman);
   float u = fract(aSeed.x + uTime * speed);
   float xL = -uAspect - 0.12;
   float xR = uAspect + 0.12;
   float x = mix(xL, xR, u);
-  float isHuman = step(aSeed.w, 0.065);
 
   float lane = floor(fract(aSeed.z * 7.13 + aSeed.w * 3.7) * lanes);
   float laneY = mix(uLane.y, uLane.z, (lane + 0.5) / lanes);
@@ -42,11 +46,38 @@ void main() {
   float y = mix(yc, laneY, order);
 
   float post = smoothstep(uGate - 0.015, uGate + 0.015, x);
-  float px = x;
-  if (isHuman > 0.5 && x > uGate) px = uGate + (x - uGate) * 0.42;
-  float toTray = isHuman * smoothstep(uGate, uGate + 0.5, x);
+  // Items for a person: drop to the tray, wait there while being checked, then (decision at tDec,
+  // different for every item) float up and right into one of the upper verified rows
+  float W = xR - uGate;
+  float tP = clamp((x - uGate) / W, 0.0, 1.0);
+  // Timeline past the gate (tP, at the half pace above):
+  //   0 .. tTray      down to the person: first to the right, then curving down
+  //   tTray .. tDec   waiting in the tray while being checked
+  //   tDec .. tJoin   approved: green, up to one of the upper verified rows at the same speed
+  //   tJoin ..        along that row at the speed of the other rows, out at the right edge
+  float tTray = 0.25;
+  float tDec = mix(0.3, 0.38, fract(aSeed.y * 7.31 + aSeed.z * 1.7));
+  float tUp = 0.29;
+  float tJoin = tDec + tUp;
+  // how far right the tray reaches: less on the narrow phone field, so the dots stay off the label
+  float reach = mix(0.17, 0.3, smoothstep(1.2, 1.55, uAspect));
+  float out1 = clamp(tP / tTray, 0.0, 1.0);
+  float trayPx = uGate + W * (reach * (1.0 - (1.0 - out1) * (1.0 - out1)) + reach * 0.2 * smoothstep(tTray, tDec, tP));
   float trayY = -0.84 + fract(aSeed.y * 13.7) * 0.07;
+  float upLane = lanes - 1.0 - floor(fract(aSeed.z * 5.13) * ceil(lanes * 0.5));
+  float upY = mix(uLane.y, uLane.z, (upLane + 0.5) / lanes);
+  float g = clamp((tP - tDec) / tUp, 0.0, 1.0);
+  float x0 = uGate + W * reach * 1.2;
+  float xJ = min(x0 + W * 0.42, xR - 0.35);
+  float px = x;
+  if (isHuman > 0.5 && x > uGate) {
+    px = tP < tDec ? trayPx : (tP < tJoin ? mix(x0, xJ, g) : xJ + (tP - tJoin) * 2.0 * W);
+  }
+  float toTray = isHuman * smoothstep(0.0, tTray, tP) * step(uGate, x);
   y = mix(y, trayY, toTray);
+  y = mix(y, upY, isHuman * smoothstep(0.0, 1.0, g));
+  float approve = isHuman * step(uGate, x) * exp(-abs(tP - tDec) * 90.0);
+  vGreen = isHuman * smoothstep(tDec - 0.005, tDec + 0.06, tP);
 
   vec2 p = vec2(px, y);
   vec2 d = p - uMouse;
@@ -65,10 +96,10 @@ void main() {
   float base = mix(0.24 + aSeed.y * 0.4, 1.0, post) * mix(mask, 1.0, post);
   float focus = kind < 0.5 ? uFocus.x : (kind < 1.5 ? uFocus.y : uFocus.z);
   vFlash = exp(-abs(x - uGate) * 22.0);
-  vA = base * edge * keep * (1.0 + focus * 1.3 + vFlash * 0.8);
-  if (isHuman > 0.5) vA *= 1.0 - smoothstep(0.9, 1.0, u);
+  // the moment of the decision: a short flash, like the one at the gate
+  vA = base * edge * keep * (1.0 + focus * 1.3 + vFlash * 0.8 + approve * 0.9);
   float size = kind > 1.5 ? 7.0 : (kind > 0.5 ? 13.0 : mix(2.4, 4.6, aSeed.y));
-  gl_PointSize = uPx * size * (1.0 + vFlash * 0.5 + focus * 0.25);
+  gl_PointSize = uPx * size * (1.0 + vFlash * 0.5 + focus * 0.25 + approve * 0.7);
 }
 `;
 
@@ -80,6 +111,7 @@ uniform vec3 uHuman;
 varying float vA;
 varying float vKind;
 varying float vFlash;
+varying float vGreen;
 void main() {
   vec2 c = gl_PointCoord - 0.5;
   float a;
@@ -90,7 +122,7 @@ void main() {
   } else {
     a = 1.0 - smoothstep(0.3, 0.5, length(c));
   }
-  vec3 col = vKind > 1.5 ? uHuman : (vKind > 0.5 ? uOk : mix(uRaw, uOk, vFlash * 0.7));
+  vec3 col = vKind > 1.5 ? mix(uHuman, uOk, vGreen) : (vKind > 0.5 ? uOk : mix(uRaw, uOk, vFlash * 0.7));
   float alpha = clamp(a * vA, 0.0, 1.0);
   gl_FragColor = vec4(col * alpha, alpha);
 }
