@@ -206,7 +206,7 @@ if (motion) {
       autoSplit: true,
       onSplit(self) {
         gsap.set(el, { visibility: "visible" });
-        const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: "top 86%", once: true } });
+        const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: "top 86%" } });
         tl.from(self.lines, { yPercent: 105, duration: big ? 1.2 : 1.05, stagger: 0.09, ease: EXPO }, 0);
         if (big) tl.from(self.lines, { fontStretch: "84%", duration: 1.3, stagger: 0.09, ease: "power3.inOut" }, 0.1);
         return tl;
@@ -214,21 +214,27 @@ if (motion) {
     });
   });
 
+  // No "once: true" on these triggers: a trigger the page is already past (a reload restores the scroll
+  // position near the end) would remove itself while the next one is being created, GSAP then throws and
+  // the rest of this script never runs. The triggers stay and a flag makes each reveal run once.
   ScrollTrigger.batch("[data-reveal]", {
     start: "top 90%",
-    once: true,
-    onEnter: (els) =>
-      gsap.to(els, {
+    onEnter: (els) => {
+      const todo = els.filter((el) => !el.dataset.shown);
+      if (!todo.length) return;
+      todo.forEach((el) => (el.dataset.shown = "1"));
+      gsap.to(todo, {
         opacity: 1,
         y: 0,
         duration: 1,
         ease: EXPO,
         stagger: 0.08,
         onComplete: () => {
-          els.forEach((el) => el.classList.add("is-in"));
-          gsap.set(els, { clearProps: "transform,opacity" });
+          todo.forEach((el) => el.classList.add("is-in"));
+          gsap.set(todo, { clearProps: "transform,opacity" });
         },
-      }),
+      });
+    },
   });
 
   // Flow: each step appears, then its connector draws to the next icon, which pops in on arrival
@@ -237,7 +243,7 @@ if (motion) {
     const icons = $$(".flow-icon", flow);
     gsap.set(steps, { opacity: 0, y: 24, "--draw": 0 });
     gsap.set(icons, { scale: 0.4 });
-    const tl = gsap.timeline({ scrollTrigger: { trigger: flow, start: "top 80%", once: true } });
+    const tl = gsap.timeline({ scrollTrigger: { trigger: flow, start: "top 80%" } });
     steps.forEach((step, i) => {
       const at = i * 0.6;
       tl.to(step, { opacity: 1, y: 0, duration: 0.9, ease: EXPO }, at)
@@ -250,12 +256,17 @@ if (motion) {
   const fmt = new Intl.NumberFormat("pl-PL");
   $$("[data-count]").forEach((el) => {
     const end = +el.dataset.count, o = { v: 0 };
+    let counted = false;
     el.textContent = "0";
     ScrollTrigger.create({
       trigger: el,
       start: "top 90%",
-      once: true,
-      onEnter: () => gsap.to(o, { v: end, duration: end > 100 ? 1.8 : 1.1, ease: "power3.out", onUpdate: () => (el.textContent = fmt.format(Math.round(o.v))) }),
+      onEnter: () => {
+        if (counted) return;
+        counted = true;
+        el.classList.add("counting");
+        gsap.to(o, { v: end, duration: end > 100 ? 1.8 : 1.1, ease: "power3.out", onUpdate: () => (el.textContent = fmt.format(Math.round(o.v))), onComplete: () => el.classList.remove("counting") });
+      },
     });
   });
 

@@ -334,6 +334,8 @@ body { margin: 0; background: var(--page); color: var(--ink); font-family: var(-
 .outro li::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: #c0392b; flex: none; transform: translateY(-2px); }
 .outro .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
 .outro .row span { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid #2a2a2e; color: #e6e6e8; }
+.outro .row span:first-child { font-size: 15.4px; padding: 7.7px 14.3px; background: #c0392b; border-color: #c0392b; color: #faf9f6; font-weight: 600; }
+.outro .row { align-items: center; }
 .outro.in > * { animation: c-up .5s cubic-bezier(.2,.8,.2,1) both; }
 .outro.in > *:nth-child(2) { animation-delay: .08s; } .outro.in > *:nth-child(3) { animation-delay: .16s; } .outro.in > *:nth-child(4) { animation-delay: .24s; }
 
@@ -773,7 +775,7 @@ body { margin: 0; background: var(--page); color: var(--ink); font-family: var(-
       <span class="hrm">HR</span>
       <h2>Koniec dnia w kadrach</h2>
       <ul>
-        <li>Dwa zgłoszenia przyjęte z formularza: jedno ocenione przez AI, drugie oznaczone jako możliwy duplikat.</li>
+        <li>Dwa zgłoszenia przyjęte z formularza: jedno sprawdzone przez AI, drugie oznaczone jako możliwy duplikat.</li>
         <li>Spotkanie umówione, z wpisem w kalendarzu zespołu i w historii kandydata.</li>
         <li>Daty z Dysku w kalendarzu dokumentów. Propozycje AI zatwierdził albo pominął człowiek.</li>
       </ul>

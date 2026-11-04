@@ -66,10 +66,12 @@
   --line: #d5dacd;
   --line-2: #bcc3b3;
   --ok: #3a780e;
+  --ok-text: #2f650b; /* --ok darkened for small text on its own tint (AA) */
   --ok-fill: #c4f15e;
   --ok-ink: #12170a;
   --ok-soft: rgb(58 120 14 / 0.1);
   --human: #a64a06;
+  --human-text: #8f3f05;
   --human-soft: rgb(196 98 18 / 0.12);
   --shadow: 32 40 22;
   --gl-raw: #6f7768;
@@ -99,8 +101,10 @@
   --line: #242a21;
   --line-2: #363e31;
   --ok: #b9ee5c;
+  --ok-text: #b9ee5c;
   --ok-soft: rgb(185 238 92 / 0.1);
   --human: #ffb14a;
+  --human-text: #ffb14a;
   --human-soft: rgb(255 177 74 / 0.12);
   --shadow: 0 0 0;
   --gl-raw: #8f9988;
@@ -225,10 +229,10 @@ code { font-family: var(--mono); font-size: 0.86em; }
   line-height: 1.2;
   white-space: nowrap;
 }
-.badge-live { border-color: color-mix(in srgb, var(--ok) 40%, transparent); color: var(--ok); background: var(--ok-soft); }
+.badge-live { border-color: color-mix(in srgb, var(--ok) 40%, transparent); color: var(--ok-text); background: var(--ok-soft); }
 /* Prototype: the same badge in the orange of the hero's dots (--gl-human); the text takes the darker
    --human so it stays readable on the light tint. The dot does not pulse: pulsing means "in production". */
-.badge-proto { border-color: color-mix(in srgb, var(--gl-human) 45%, transparent); color: var(--human); background: color-mix(in srgb, var(--gl-human) 11%, transparent); }
+.badge-proto { border-color: color-mix(in srgb, var(--gl-human) 45%, transparent); color: var(--human-text); background: color-mix(in srgb, var(--gl-human) 11%, transparent); }
 .proto-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gl-human); flex: none; }
 
 /* Real status only: availability and "in production" */
@@ -257,7 +261,8 @@ code { font-family: var(--mono); font-size: 0.86em; }
 @media (prefers-reduced-transparency: reduce) { .nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; } }
 .nav-inner { height: var(--nav-h); display: flex; align-items: center; gap: 16px; padding-inline: 10px 10px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; padding-left: 12px; text-decoration: none; font-family: var(--font); font-size: 1.08rem; font-weight: 680; font-stretch: 108%; white-space: nowrap; }
-.nav-links { display: flex; gap: 4px; margin-inline: auto; }
+/* the links sit on the right, next to the theme switch and the button, as one group */
+.nav-links { display: flex; gap: 4px; margin-left: auto; }
 .nav-links a { position: relative; text-decoration: none; color: var(--ink-2); font-size: 0.95rem; font-weight: 560; padding: 8px 14px; border-radius: 999px; transition: color 0.3s var(--ease), background-color 0.3s var(--ease); }
 .nav-links a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
 .nav-links a[aria-current="true"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, transparent); }
@@ -512,7 +517,7 @@ html:not(.motion) .nav-ring { display: none; }
   cursor: pointer;
 }
 .seg::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 6px; margin-top: -3px; border-radius: 999px; background: var(--line); transition: height 0.25s var(--ease), margin 0.25s var(--ease), background-color 0.25s var(--ease); }
-.seg i { position: absolute; left: 0; top: 50%; height: 6px; margin-top: -3px; width: 100%; border-radius: 999px; background: var(--ok); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); transition: height 0.25s var(--ease), margin 0.25s var(--ease); }
+.seg i { position: absolute; left: 0; top: 50%; height: 6px; margin-top: -3px; width: 100%; border-radius: 999px; background: var(--ok-text); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); transition: height 0.25s var(--ease), margin 0.25s var(--ease); }
 .seg:hover::before, .seg:focus-visible::before { height: 10px; margin-top: -5px; background: var(--line-2); }
 .seg:hover i, .seg:focus-visible i { height: 10px; margin-top: -5px; }
 .seg[aria-current="step"]::before { background: var(--line-2); }
@@ -549,7 +554,7 @@ html:not(.motion) .nav-ring { display: none; }
 @keyframes capin { from { opacity: 0; transform: translateY(6px); } }
 .player-note { margin-top: 14px; font-size: 0.86rem; color: var(--ink-3); max-width: 80ch; padding-left: 14px; border-left: 2px solid var(--line-2); }
 
-.player:fullscreen { background: #0b0d0a; color: #eef2e8; padding: 24px max(24px, 4vw); display: flex; flex-direction: column; justify-content: center; --surface: #151912; --ink: #eef2e8; --ink-2: #aab3a2; --ink-3: #848d7c; --line: #2a3127; --line-2: #3a4335; --bg: #0b0d0a; --ok: #b9ee5c; }
+.player:fullscreen { background: #0b0d0a; color: #eef2e8; padding: 24px max(24px, 4vw); display: flex; flex-direction: column; justify-content: center; --surface: #151912; --ink: #eef2e8; --ink-2: #aab3a2; --ink-3: #848d7c; --line: #2a3127; --line-2: #3a4335; --bg: #0b0d0a; --ok: #b9ee5c; --ok-text: #b9ee5c; }
 .player:fullscreen .player-screen { width: min(100%, calc((100vh - 200px) * var(--ratio))); margin-inline: auto; }
 .player:fullscreen .player-ui, .player:fullscreen .player-cap { width: min(100%, calc((100vh - 200px) * var(--ratio))); margin-inline: auto; }
 .player:fullscreen .player-note { display: none; }
@@ -596,7 +601,9 @@ html:not(.motion) .nav-ring { display: none; }
 /* same column gap as .flow, so each number sits exactly under its step */
 .facts-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 44px); }
 .fact { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 10px; }
-.fact dd { font-size: clamp(2.8rem, 6vw, 5rem); --wdth: 108%; font-variant-numeric: tabular-nums; line-height: 0.9; }
+.fact dd { font-size: clamp(2.8rem, 6vw, 5rem); --wdth: 108%; line-height: 0.9; }
+/* tabular figures only while counting (no jitter); at rest normal figures, whose zero is not slashed */
+.fact dd.counting { font-variant-numeric: tabular-nums; }
 .fact dt { color: var(--ink-2); font-size: 0.95rem; max-width: 26ch; line-height: 1.45; }
 .fact:first-child dd { color: var(--ok); }
 .stack { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -650,7 +657,8 @@ html:not(.motion) .nav-ring { display: none; }
 }
 .contact-label { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-3); }
 .mail { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
-.mail-addr { font-family: var(--font); font-size: clamp(1.25rem, 1.1vw + 0.85rem, 1.9rem); font-weight: 700; font-stretch: 104%; letter-spacing: -0.02em; line-height: 1.2; overflow-wrap: anywhere; }
+.mail-addr:hover { text-decoration: underline; }
+.mail-addr { color: inherit; text-decoration: none; text-underline-offset: 0.15em; text-decoration-thickness: 2px; font-family: var(--font); font-size: clamp(1.25rem, 1.1vw + 0.85rem, 1.9rem); font-weight: 700; font-stretch: 104%; letter-spacing: -0.02em; line-height: 1.2; overflow-wrap: anywhere; }
 .copy-btn .i-done { display: none; color: var(--ok); }
 .copy-btn.done .i-copy { display: none; }
 .copy-btn.done .i-done { display: block; }

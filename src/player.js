@@ -21,6 +21,8 @@ const HR = {
 };
 
 const SPEEDS = [1, 1.5, 2];
+// Polish typesetting: a single-letter word stays with the next word (as in the page's own text)
+const bind = (s) => (s ? s.replace(/(?<=^|[\s(„"\u00a0])([aiouwzAIOUWZ]) /g, "$1\u00a0") : s);
 const label = (s) => `${String(s).replace(".", ",")}×`;
 const all = new Set();
 
@@ -232,7 +234,7 @@ class Player {
     const { names, weights } = this.s;
     const total = weights.reduce((a, b) => a + b, 0) || names.length;
     this.track.innerHTML = names
-      .map((n, i) => `<button type="button" class="seg" data-i="${i}" style="--w:${(((weights[i] || total / names.length) / total) * 100).toFixed(2)}" aria-label="Rozdział ${i + 1}: ${n}"><i></i><span class="seg-tip">${n}</span></button>`)
+      .map((n, i) => `<button type="button" class="seg" data-i="${i}" style="--w:${(((weights[i] || total / names.length) / total) * 100).toFixed(2)}" aria-label="Rozdział ${i + 1}: ${n}"><i></i><span class="seg-tip">${bind(n)}</span></button>`)
       .join("");
     this.segs = [...this.track.children];
     this.builtFor = names.join("|");
@@ -260,15 +262,19 @@ class Player {
     });
     const num = s.names.length ? `${s.cur + 1}/${s.names.length}` : this.num.textContent;
     if (this.num.textContent !== num) this.num.textContent = num;
-    if (s.kicker && this.kicker.textContent !== s.kicker) {
-      this.kicker.textContent = s.kicker;
+    // the label is always the chapter's own name, so it matches the number next to it
+    const kick = bind(s.names[s.cur] || s.kicker);
+    if (kick && this.kicker.textContent !== kick) {
+      this.kicker.textContent = kick;
       const head = this.kicker.parentElement;
       head.classList.remove("swap");
       void head.offsetWidth;
       head.classList.add("swap");
     }
-    if (s.caption && this.text.textContent !== s.caption) {
-      this.text.textContent = s.caption;
+    // single-letter words stay with the next word, as in the rest of the page
+    const cap = bind(s.caption);
+    if (cap && this.text.textContent !== cap) {
+      this.text.textContent = cap;
       this.text.classList.remove("swap");
       void this.text.offsetWidth;
       this.text.classList.add("swap");

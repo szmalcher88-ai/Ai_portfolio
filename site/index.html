@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Szymon Malcher · aplikacje biznesowe z AI</title>
+<title>Szymon Malcher · aplikacje biznesowe z&nbsp;AI</title>
 <meta name="description" content="Trzy działające systemy: kadry i rekrutacja w produkcji, kontrola faktur kosztowych i zamówienia B2B do ERP. AI analizuje, kod sprawdza, człowiek decyduje.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#f1f3ee">
@@ -17,7 +17,7 @@
 <link rel="preload" href="assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>
   // Theme before first paint: light unless the visitor picked dark with the button
-  try { if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}
+  try { if (localStorage.getItem("theme") === "dark") { document.documentElement.dataset.theme = "dark"; document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0c0e0b"); } } catch (e) {}
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.remove("motion");
   // Safety net: if the script does not run, show everything
   addEventListener("load", () => setTimeout(() => { if (!window.__pfReady) document.documentElement.classList.remove("motion"); }, 1200));
@@ -70,13 +70,13 @@
   <section class="index" id="projekty" aria-labelledby="projekty-h">
     <div class="wrap">
       <h2 class="section-title" id="projekty-h" data-split>Trzy systemy jedna zasada</h2>
-      <p class="section-lede" data-reveal>AI robi to, w czym jest dobre: czyta nieuporządkowane dane. Pieniądze, terminy i uprawnienia sprawdza zwykły kod, a wyjątki trafiają do człowieka.</p>
+      <p class="section-lede" data-reveal>AI robi to, w&nbsp;czym jest dobre: czyta nieuporządkowane dane. Pieniądze, terminy i&nbsp;uprawnienia sprawdza zwykły kod, a&nbsp;wyjątki trafiają do człowieka.</p>
       <ol class="plist">
         <li data-reveal>
           <a class="prow" href="#hr" data-preview="img/hr-start-640.webp">
-            <span class="prow-name">System HR</span>
-            <span class="prow-desc">Rekrutacja, kadry i dokumenty pracowników</span>
-            <span class="prow-meta"><span class="badge badge-live"><span class="live-dot" aria-hidden="true"></span>W produkcji</span><span class="prow-stack">Next.js, PostgreSQL, Gemini</span></span>
+            <span class="prow-name">HR System</span>
+            <span class="prow-desc">Rekrutacja, kadry i&nbsp;dokumenty pracowników</span>
+            <span class="prow-meta"><span class="badge badge-live"><span class="live-dot" aria-hidden="true"></span>W&nbsp;produkcji</span><span class="prow-stack">Next.js, PostgreSQL, Gemini</span></span>
             <span class="prow-arrow" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M200,88V192a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h84.69L58.34,69.66A8,8,0,0,1,69.66,58.34L184,172.69V88a8,8,0,0,1,16,0Z"/></svg></span>
           </a>
         </li>
@@ -91,7 +91,7 @@
         <li data-reveal>
           <a class="prow" href="#zamowienia" data-preview="img/erp-kolejka-640.webp">
             <span class="prow-name">AI Order Intake</span>
-            <span class="prow-desc">Automatyzacja zamówień B2B z maila, PDF i Excela prosto do ERP</span>
+            <span class="prow-desc">Automatyzacja zamówień B2B z&nbsp;maila, PDF i&nbsp;Excela prosto do ERP</span>
             <span class="prow-meta"><span class="badge badge-proto"><span class="proto-dot" aria-hidden="true"></span>Prototyp</span><span class="prow-stack">Rails, Rust, Claude</span></span>
             <span class="prow-arrow" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M200,88V192a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h84.69L58.34,69.66A8,8,0,0,1,69.66,58.34L184,172.69V88a8,8,0,0,1,16,0Z"/></svg></span>
           </a>
@@ -101,12 +101,12 @@
     <div class="preview" aria-hidden="true"><img alt="" src="img/hr-start-640.webp"><img alt="" src="img/hr-start-640.webp"></div>
   </section>
 
-  <!-- ===================== System HR ===================== -->
+  <!-- ===================== HR System ===================== -->
   <section class="case" id="hr" aria-labelledby="hr-h">
     <div class="wrap">
       <header class="case-head">
-        <p class="case-meta" data-reveal><span class="badge badge-live"><span class="live-dot" aria-hidden="true"></span>W produkcji u klienta</span><span>Rekrutacja i kadry</span></p>
-        <h2 class="case-title" id="hr-h" data-split>System HR</h2>
+        <p class="case-meta" data-reveal><span class="badge badge-live"><span class="live-dot" aria-hidden="true"></span>W&nbsp;produkcji u&nbsp;klienta</span><span>Rekrutacja i&nbsp;kadry</span></p>
+        <h2 class="case-title" id="hr-h" data-split>HR System</h2>
         <p class="case-lede" data-reveal>Firma budowlana deleguje pracowników za granicę. Zamiast arkuszy i&nbsp;folderów ma jedną aplikację: kadry, kalendarz ważności dokumentów, synchronizację danych z&nbsp;Dyskiem Google, rekrutację do której trafiają CV z&nbsp;różnych portali oraz ocenę dopasowania CV.</p>
       </header>
 
@@ -123,22 +123,22 @@
         </div>
         <figcaption class="player-cap" aria-live="polite">
           <span class="pl-chapter"><b class="pl-num">1/8</b><span class="pl-kicker">Zgłoszenie</span></span>
-          <span class="pl-text">Kandydat wysyła formularz z ogłoszenia na OLX. Aplikacja dostaje podpisany webhook, ten sam co na produkcji.</span>
+          <span class="pl-text">Kandydat wysyła formularz z&nbsp;ogłoszenia na OLX. Aplikacja dostaje podpisany webhook, ten sam co na produkcji.</span>
         </figcaption>
-        <p class="player-note">Dane fikcyjne, Gemini, Dysk i Kalendarz Google zastępuje lokalna symulacja.</p>
+        <p class="player-note">Dane fikcyjne, Gemini, Dysk i&nbsp;Kalendarz Google zastępuje lokalna symulacja.</p>
       </figure>
 
       <ol class="flow">
         <li class="flow-step" data-zone="0">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,40V80a8,8,0,0,1-16,0V48H176a8,8,0,0,1,0-16h40A8,8,0,0,1,224,40ZM80,208H48V176a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H80a8,8,0,0,0,0-16Zm136-40a8,8,0,0,0-8,8v32H176a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V176A8,8,0,0,0,216,168ZM40,88a8,8,0,0,0,8-8V48H80a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V80A8,8,0,0,0,40,88ZM80,72h96a8,8,0,0,1,8,8v96a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V80A8,8,0,0,1,80,72Zm8,96h80V88H88Z"/></svg></span>
-          <h3>AI czyta</h3>
-          <p>Gemini ocenia CV kandydata względem wymagań ogłoszenia i czyta daty ważności ze skanów, gdy nie ma ich w nazwie pliku.</p>
-          <code class="flow-ex">CV z formularza → ocena i uzasadnienie</code>
+          <h3>AI analizuje</h3>
+          <p>Gemini ocenia CV kandydata względem wymagań ogłoszenia i&nbsp;czyta daty ważności ze skanów, gdy nie ma ich w&nbsp;nazwie pliku.</p>
+          <code class="flow-ex">CV z&nbsp;formularza → ocena i&nbsp;uzasadnienie</code>
         </li>
         <li class="flow-step" data-zone="1">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg></span>
           <h3>Kod sprawdza</h3>
-          <p>Reguły wiarygodności i próg z ustawień, duplikaty po e-mailu i telefonie, daty z nazw plików liczone algorytmem.</p>
+          <p>Reguły wiarygodności i&nbsp;próg z&nbsp;ustawień, duplikaty po e-mailu i&nbsp;telefonie, daty z&nbsp;nazw plików liczone algorytmem.</p>
           <code class="flow-ex">UPDATE … WHERE status = …</code>
         </li>
         <li class="flow-step flow-human" data-zone="2">
@@ -151,12 +151,12 @@
 
       <div class="facts">
         <dl class="facts-nums">
-          <div class="fact" data-reveal><dt>testów jednostkowych i komponentów</dt><dd data-count="1508">1508</dd></div>
+          <div class="fact" data-reveal><dt>testów jednostkowych i&nbsp;komponentów</dt><dd data-count="1508">1508</dd></div>
           <div class="fact" data-reveal><dt>testów end-to-end na osobnej bazie</dt><dd data-count="86">86</dd></div>
-          <div class="fact" data-reveal><dt>role, uprawnienia zawsze z bazy</dt><dd data-count="3">3</dd></div>
+          <div class="fact" data-reveal><dt>role, uprawnienia zawsze z&nbsp;bazy</dt><dd data-count="3">3</dd></div>
         </dl>
         <ul class="stack" aria-label="Technologie" data-reveal>
-          <li>Next.js 15</li><li>TypeScript</li><li>Prisma</li><li>PostgreSQL 16</li><li>Auth.js</li><li>Gemini API</li><li>Google Drive i Calendar</li><li>Playwright</li><li>GitHub Actions</li>
+          <li>Next.js 15</li><li>TypeScript</li><li>Prisma</li><li>PostgreSQL 16</li><li>Auth.js</li><li>Gemini API</li><li>Google Drive i&nbsp;Calendar</li><li>Playwright</li><li>GitHub Actions</li>
         </ul>
       </div>
     </div>
@@ -168,7 +168,7 @@
       <header class="case-head">
         <p class="case-meta" data-reveal><span class="badge badge-proto"><span class="proto-dot" aria-hidden="true"></span>Działający prototyp</span><span>Biuro rachunkowe</span></p>
         <h2 class="case-title" id="lp-h" data-split>LedgerPilot</h2>
-        <p class="case-lede" data-reveal>Faktury kosztowe z PDF, KSeF, Excela i CSV przechodzą kontrole, zanim ktokolwiek je zaksięguje. Dekret proponuje program, zatwierdza księgowa, eksport ma sumy kontrolne.</p>
+        <p class="case-lede" data-reveal>Faktury kosztowe z&nbsp;PDF, KSeF, Excela i&nbsp;CSV przechodzą kontrole, zanim ktokolwiek je zaksięguje. Dekret proponuje program, zatwierdza księgowa, eksport ma sumy kontrolne.</p>
       </header>
 
       <figure class="player" data-player data-kind="frame" data-src="demo/ksiegowanie/?embed" data-full="demo/ksiegowanie/" data-speed="1.5" style="--ratio: 1280 / 800" data-reveal>
@@ -183,27 +183,27 @@
           <button class="pl-btn pl-full" type="button" aria-label="Pełny ekran"><span class="i-out"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-42.34,42.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM98.34,146.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l42.35-42.34a8,8,0,0,0-11.32-11.32ZM208,152a8,8,0,0,0-8,8v28.69l-42.34-42.35a8,8,0,0,0-11.32,11.32L188.69,200H160a8,8,0,0,0,0,16h48a8,8,0,0,0,8-8V160A8,8,0,0,0,208,152ZM67.31,56H96a8,8,0,0,0,0-16H48a8,8,0,0,0-8,8V96a8,8,0,0,0,16,0V67.31l42.34,42.35a8,8,0,0,0,11.32-11.32Z"/></svg></span><span class="i-in"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M144,104V64a8,8,0,0,1,16,0V84.69l42.34-42.35a8,8,0,0,1,11.32,11.32L171.31,96H192a8,8,0,0,1,0,16H152A8,8,0,0,1,144,104Zm-40,40H64a8,8,0,0,0,0,16H84.69L42.34,202.34a8,8,0,0,0,11.32,11.32L96,171.31V192a8,8,0,0,0,16,0V152A8,8,0,0,0,104,144Zm67.31,16H192a8,8,0,0,0,0-16H152a8,8,0,0,0-8,8v40a8,8,0,0,0,16,0V171.31l42.34,42.35a8,8,0,0,0,11.32-11.32ZM104,56a8,8,0,0,0-8,8V84.69L53.66,42.34A8,8,0,0,0,42.34,53.66L84.69,96H64a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V64A8,8,0,0,0,104,56Z"/></svg></span></button>
         </div>
         <figcaption class="player-cap" aria-live="polite">
-          <span class="pl-chapter"><b class="pl-num">1/9</b><span class="pl-kicker">Logowanie i przegląd</span></span>
-          <span class="pl-text">Rano księgowa otwiera LedgerPilot i wybiera swoją rolę.</span>
+          <span class="pl-chapter"><b class="pl-num">1/9</b><span class="pl-kicker">Logowanie i&nbsp;przegląd</span></span>
+          <span class="pl-text">Rano księgowa otwiera LedgerPilot i&nbsp;wybiera swoją rolę.</span>
         </figcaption>      </figure>
 
       <ol class="flow">
         <li class="flow-step" data-zone="0">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,40V80a8,8,0,0,1-16,0V48H176a8,8,0,0,1,0-16h40A8,8,0,0,1,224,40ZM80,208H48V176a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H80a8,8,0,0,0,0-16Zm136-40a8,8,0,0,0-8,8v32H176a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V176A8,8,0,0,0,216,168ZM40,88a8,8,0,0,0,8-8V48H80a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V80A8,8,0,0,0,40,88ZM80,72h96a8,8,0,0,1,8,8v96a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V80A8,8,0,0,1,80,72Zm8,96h80V88H88Z"/></svg></span>
-          <h3>AI czyta</h3>
-          <p>Claude odczytuje PDF w dowolnym układzie, także skan bez tekstu, i oznacza niepewne pola. Pytania do danych zamienia na zapytanie.</p>
+          <h3>AI analizuje</h3>
+          <p>Claude odczytuje PDF w&nbsp;dowolnym układzie, także skan bez tekstu, i&nbsp;oznacza niepewne pola. Pytania do danych zamienia na zapytanie.</p>
           <code class="flow-ex">skan faktury: 10,5 s, 0,026 USD</code>
         </li>
         <li class="flow-step" data-zone="1">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg></span>
           <h3>Kod sprawdza</h3>
-          <p>Kontrole w groszach: netto plus VAT, stawka, suma pozycji, nabywca, okres zamknięty, duplikaty. Kwoty zawsze liczy baza, nie model.</p>
+          <p>Kontrole w&nbsp;groszach: netto plus VAT, stawka, suma pozycji, nabywca, okres zamknięty, duplikaty. Kwoty zawsze liczy baza, nie model.</p>
           <code class="flow-ex">VAT 127,68 zł, powinno być 367,08 zł</code>
         </li>
         <li class="flow-step flow-human" data-zone="2">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M144,157.68a68,68,0,1,0-71.9,0c-20.65,6.76-39.23,19.39-54.17,37.17a8,8,0,0,0,12.25,10.3C50.25,181.19,77.91,168,108,168s57.75,13.19,77.87,37.15a8,8,0,0,0,12.25-10.3C183.18,177.07,164.6,164.44,144,157.68ZM56,100a52,52,0,1,1,52,52A52.06,52.06,0,0,1,56,100Zm197.66,33.66-32,32a8,8,0,0,1-11.32,0l-16-16a8,8,0,0,1,11.32-11.32L216,148.69l26.34-26.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
           <h3>Człowiek decyduje</h3>
-          <p>Księgowa zatwierdza dekret, zmianę kategorii przyjmuje druga osoba. Każdy krok zostaje w audycie.</p>
+          <p>Księgowa zatwierdza dekret, zmianę kategorii przyjmuje druga osoba. Każdy krok zostaje w&nbsp;audycie.</p>
           <code class="flow-ex">Zatwierdź → Zaksięguj → Eksportuj</code>
         </li>
       </ol>
@@ -211,14 +211,14 @@
       <div class="facts">
         <dl class="facts-nums">
           <div class="fact" data-reveal><dt>testów Vitest, do tego 4 scenariusze Playwright</dt><dd data-count="140">140</dd></div>
-          <div class="fact" data-reveal><dt>problemów z audytu UX, potem trzy rundy poprawek</dt><dd data-count="35">35</dd></div>
-          <div class="fact" data-reveal><dt>firmy demo z izolacją danych w bazie (RLS)</dt><dd data-count="4">4</dd></div>
+          <div class="fact" data-reveal><dt>poprawek po audycie UX, w&nbsp;trzech rundach</dt><dd data-count="35">35</dd></div>
+          <div class="fact" data-reveal><dt>firmy demo z&nbsp;izolacją danych w&nbsp;bazie (RLS)</dt><dd data-count="4">4</dd></div>
         </dl>
         <aside class="callout" data-reveal>
-          <p><strong>Próba „prompt injection” w stopce faktury.</strong> Model wskazał wstawioną instrukcję i ją zignorował. Nawet gdyby jej uległ, nie ma narzędzia, które cokolwiek zatwierdza.</p>
+          <p><strong>Próba „prompt injection” w&nbsp;stopce faktury.</strong> Model wskazał wstawioną instrukcję i&nbsp;ją zignorował. Nawet gdyby jej uległ, nie ma narzędzia, które cokolwiek zatwierdza.</p>
         </aside>
         <ul class="stack" aria-label="Technologie" data-reveal>
-          <li>Next.js 16</li><li>Fastify</li><li>PostgreSQL 18 z RLS</li><li>TypeScript</li><li>Claude API</li><li>KSeF FA(3) z XSD</li><li>Vitest</li><li>Playwright</li>
+          <li>Next.js 16</li><li>Fastify</li><li>PostgreSQL 18 z&nbsp;RLS</li><li>TypeScript</li><li>Claude API</li><li>KSeF FA(3) z&nbsp;XSD</li><li>Vitest</li><li>Playwright</li>
         </ul>
       </div>
     </div>
@@ -228,9 +228,9 @@
   <section class="case" id="zamowienia" aria-labelledby="erp-h">
     <div class="wrap">
       <header class="case-head">
-        <p class="case-meta" data-reveal><span class="badge badge-proto"><span class="proto-dot" aria-hidden="true"></span>Działający prototyp</span><span>Hurtownie i dystrybucja</span></p>
+        <p class="case-meta" data-reveal><span class="badge badge-proto"><span class="proto-dot" aria-hidden="true"></span>Działający prototyp</span><span>Hurtownie i&nbsp;dystrybucja</span></p>
         <h2 class="case-title" id="erp-h" data-split>AI Order Intake</h2>
-        <p class="case-lede" data-reveal>Zamówienia od klientów przychodzą mailem, w PDF i w Excelu. System zamienia je w sprawdzone zamówienia w ERP, a zatrzymuje się, zamiast zgadywać, gdy coś jest niepewne.</p>
+        <p class="case-lede" data-reveal>Zamówienia od klientów przychodzą mailem, w&nbsp;PDF i&nbsp;w&nbsp;Excelu. System zamienia je w&nbsp;sprawdzone zamówienia w&nbsp;ERP, a&nbsp;zatrzymuje się, zamiast zgadywać, gdy coś jest niepewne.</p>
       </header>
 
       <figure class="player" data-player data-kind="frame" data-src="demo/erp/?embed" data-full="demo/erp/" data-speed="1.5" style="--ratio: 1280 / 760" data-reveal>
@@ -246,35 +246,35 @@
         </div>
         <figcaption class="player-cap" aria-live="polite">
           <span class="pl-chapter"><b class="pl-num">1/11</b><span class="pl-kicker">Początek</span></span>
-          <span class="pl-text">Sześć zamówień od klientów: mailem, w PDF i w Excelu. Zobacz, co robi system, a co pracownik.</span>
+          <span class="pl-text">Sześć zamówień od klientów: mailem, w&nbsp;PDF i&nbsp;w&nbsp;Excelu. Zobacz, co robi system, a&nbsp;co pracownik.</span>
         </figcaption>      </figure>
 
       <ol class="flow">
         <li class="flow-step" data-zone="0">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,40V80a8,8,0,0,1-16,0V48H176a8,8,0,0,1,0-16h40A8,8,0,0,1,224,40ZM80,208H48V176a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H80a8,8,0,0,0,0-16Zm136-40a8,8,0,0,0-8,8v32H176a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V176A8,8,0,0,0,216,168ZM40,88a8,8,0,0,0,8-8V48H80a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V80A8,8,0,0,0,40,88ZM80,72h96a8,8,0,0,1,8,8v96a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V80A8,8,0,0,1,80,72Zm8,96h80V88H88Z"/></svg></span>
-          <h3>AI czyta</h3>
-          <p>Zamienia maila, PDF albo arkusz w propozycję zamówienia. Nie widzi cen, klientów ani katalogu, a jej wynik przechodzi kontrolę kontraktu.</p>
+          <h3>AI analizuje</h3>
+          <p>Zamienia maila, PDF albo arkusz w&nbsp;propozycję zamówienia. Nie widzi cen, klientów ani katalogu, a&nbsp;jej wynik przechodzi kontrolę kontraktu.</p>
           <code class="flow-ex">„40 pcs XZ442 … Delivery next Monday”</code>
         </li>
         <li class="flow-step" data-zone="1">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg></span>
           <h3>Kod sprawdza</h3>
-          <p>Silnik w Rust uruchamia 10 kontroli: ceny z umów, rabaty, limit kredytowy, terminy, duplikaty. Arytmetyka na liczbach całkowitych.</p>
-          <code class="flow-ex">Produkt znaleziony w katalogu, 10 z 10 kontroli zaliczonych</code>
+          <p>Silnik w&nbsp;Rust uruchamia 10 kontroli: ceny z&nbsp;umów, rabaty, limit kredytowy, terminy, duplikaty. Arytmetyka na liczbach całkowitych.</p>
+          <code class="flow-ex">Produkt znaleziony w&nbsp;katalogu, 10 z&nbsp;10 kontroli zaliczonych</code>
         </li>
         <li class="flow-step flow-human" data-zone="2">
           <span class="flow-icon" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M144,157.68a68,68,0,1,0-71.9,0c-20.65,6.76-39.23,19.39-54.17,37.17a8,8,0,0,0,12.25,10.3C50.25,181.19,77.91,168,108,168s57.75,13.19,77.87,37.15a8,8,0,0,0,12.25-10.3C183.18,177.07,164.6,164.44,144,157.68ZM56,100a52,52,0,1,1,52,52A52.06,52.06,0,0,1,56,100Zm197.66,33.66-32,32a8,8,0,0,1-11.32,0l-16-16a8,8,0,0,1,11.32-11.32L216,148.69l26.34-26.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
           <h3>Człowiek decyduje</h3>
-          <p>Do kolejki trafiają tylko wyjątki handlowe, każdy z wyjaśnieniem w jednym zdaniu i decyzją do podjęcia.</p>
+          <p>Do kolejki trafiają tylko wyjątki handlowe, każdy z&nbsp;wyjaśnieniem w&nbsp;jednym zdaniu i&nbsp;decyzją do podjęcia.</p>
           <code class="flow-ex">HV-220: 355,00 zł, 10,8% poniżej umowy</code>
         </li>
       </ol>
 
       <div class="facts">
         <dl class="facts-nums">
-          <div class="fact" data-reveal><dt>testów silnika w Rust</dt><dd data-count="99">99</dd></div>
-          <div class="fact" data-reveal><dt>testów aplikacji Rails, w tym klikane scenariusze</dt><dd data-count="144">144</dd></div>
-          <div class="fact" data-reveal><dt>zamówień w ERP po dniu z animacji, 5 bez udziału człowieka</dt><dd data-count="8">8</dd></div>
+          <div class="fact" data-reveal><dt>testów silnika w&nbsp;Rust</dt><dd data-count="99">99</dd></div>
+          <div class="fact" data-reveal><dt>testy aplikacji Rails, w&nbsp;tym klikane scenariusze</dt><dd data-count="144">144</dd></div>
+          <div class="fact" data-reveal><dt>zamówień w&nbsp;ERP po dniu z&nbsp;animacji, 5 bez udziału człowieka</dt><dd data-count="8">8</dd></div>
         </dl>
         <ul class="stack" aria-label="Technologie" data-reveal>
           <li>Ruby on Rails 8.1</li><li>Rust</li><li>Claude API (structured outputs)</li><li>SQLite</li><li>Capybara</li><li>GitHub Actions</li>
@@ -339,7 +339,7 @@
       <div class="contact-card" data-reveal>
         <p class="contact-label">E-mail</p>
         <p class="mail">
-          <span class="mail-addr">szmalcher88@gmail.com</span>
+          <a class="mail-addr" href="mailto:szmalcher88@gmail.com?subject=Rozmowa%20o%20projekcie">szmalcher88@gmail.com</a>
           <button class="icon-btn copy-btn" type="button" data-copy="szmalcher88@gmail.com" aria-label="Kopiuj adres e-mail">
             <span class="i-copy"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg></span><span class="i-done"><svg class="i" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg></span>
           </button>

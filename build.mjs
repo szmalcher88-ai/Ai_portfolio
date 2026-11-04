@@ -47,7 +47,14 @@ const icon = (name, weight = "regular") => {
     .trim()
     .replace("<svg ", '<svg class="i" aria-hidden="true" focusable="false" ');
 };
-const html = readFileSync("src/index.html", "utf8").replace(/\{\{icon:([a-z-]+)(?::([a-z]+))?\}\}/g, (_, n, w) => icon(n, w));
+// Polish typesetting: a single-letter word (a, i, o, u, w, z) is bound to the next word with a no-break
+// space, so it never ends a line. Only text between tags; scripts, styles and attributes stay as they are.
+const bindSingleLetters = (src) =>
+  src
+    .split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>)/)
+    .map((part, i) => (i % 2 ? part : part.replace(/(?<=^|[\s(„">]|&nbsp;)([aiouwzAIOUWZ]) (?=\S)/g, "$1&nbsp;")))
+    .join("");
+const html = bindSingleLetters(readFileSync("src/index.html", "utf8")).replace(/\{\{icon:([a-z-]+)(?::([a-z]+))?\}\}/g, (_, n, w) => icon(n, w));
 writeFileSync(`${OUT}/index.html`, html);
 
 for (const f of ["favicon.svg", "_headers"]) copyFileSync(`src/${f}`, `${OUT}/${f}`);

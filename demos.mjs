@@ -311,6 +311,17 @@ function hr(src) {
   src = patch(src, "Usługi zewnętrzne (Tally, Gemini, Dysk i Kalendarz Google)", "Usługi zewnętrzne (Gemini, Dysk i Kalendarz Google)", "hr note");
   src = patch(src, "Zgłoszenie z formularza Tally (OLX)", "Zgłoszenie z formularza (OLX)", "hr history");
   src = patch(src, "Kandydat wysyła formularz Tally z ogłoszenia na OLX.", "Kandydat wysyła formularz z ogłoszenia na OLX.", "hr caption");
+  src = patch(src, "jedno ocenione przez AI, drugie", "jedno sprawdzone przez AI, drugie", "hr outro wording");
+  // final screen: "AI tylko proponuje" 10% larger and in the red of the HR mark (.hrm)
+  src = patch(
+    src,
+    ".outro .row span { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid #2a2a2e; color: #e6e6e8; }",
+    ".outro .row span { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid #2a2a2e; color: #e6e6e8; }\n" +
+      ".outro .row span:first-child { font-size: 15.4px; padding: 7.7px 14.3px; background: #c0392b; border-color: #c0392b; color: #faf9f6; font-weight: 600; }\n" +
+      // the row would stretch the other pills to the taller one's height
+      ".outro .row { align-items: center; }",
+    "hr outro pill",
+  );
   const toasts = src.split('"Nowe zgłoszenie z formularza Tally"').length - 1;
   if (toasts !== 2) throw new Error(`hr toasts: expected 2 matches, found ${toasts}`);
   src = src.replaceAll('"Nowe zgłoszenie z formularza Tally"', '"Nowe zgłoszenie z formularza"');
