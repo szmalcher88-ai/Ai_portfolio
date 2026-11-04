@@ -8,6 +8,24 @@
       "port": 5200
     },
     {
+      "name": "ref-p1",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["C:/Users/SzMal/Portfolio 1/v4-src/serve.py", "4324", "C:/Users/SzMal/Portfolio 1/site-v4"],
+      "port": 4324
+    },
+    {
+      "name": "ref-p2",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4390", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 2/site"],
+      "port": 4390
+    },
+    {
+      "name": "ref-p3",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["C:/Users/SzMal/Portfolio_finalne/serve.py", "4326", "C:/Users/SzMal/Portfolio 3/site-v3-hr"],
+      "port": 4326
+    },
+    {
       "name": "ref-p4",
       "runtimeExecutable": "python",
       "runtimeArgs": ["C:/Users/SzMal/Portfolio 4/v5-src/serve.py", "4335", "C:/Users/SzMal/Portfolio 4/site-v5"],
@@ -20,16 +38,16 @@
       "port": 5175
     },
     {
+      "name": "ref-p6",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5180", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 6/dist"],
+      "port": 5180
+    },
+    {
       "name": "ref-p7",
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "5391", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 7"],
       "port": 5391
-    },
-    {
-      "name": "ref-p2",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "4390", "--bind", "127.0.0.1", "--directory", "C:/Users/SzMal/Portfolio 2/site"],
-      "port": 4390
     }
   ]
 }
