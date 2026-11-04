@@ -312,6 +312,12 @@ function hr(src) {
   src = patch(src, "Zgłoszenie z formularza Tally (OLX)", "Zgłoszenie z formularza (OLX)", "hr history");
   src = patch(src, "Kandydat wysyła formularz Tally z ogłoszenia na OLX.", "Kandydat wysyła formularz z ogłoszenia na OLX.", "hr caption");
   src = patch(src, "jedno ocenione przez AI, drugie", "jedno sprawdzone przez AI, drugie", "hr outro wording");
+  src = patch(
+    src,
+    '"Ewa otwiera kandydata. Wynik, pewność i uzasadnienie są w karcie; w demo ocenia lokalny ewaluator zamiast Gemini."',
+    '"Kadrowa otwiera kandydata. Wynik, pewność i uzasadnienie są w karcie."',
+    "hr caption ocena",
+  );
   // final screen: "AI tylko proponuje" 10% larger and in the red of the HR mark (.hrm)
   src = patch(
     src,

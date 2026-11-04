@@ -895,7 +895,7 @@ body { margin: 0; background: var(--page); color: var(--ink); font-family: var(-
     { name: "Ocena AI", est: 6900, run: async () => {
       cam.reset();
       show("rek", rec(AFTER1()));
-      say("Ocena AI", "Ewa otwiera kandydata. Wynik, pewność i uzasadnienie są w karcie; w demo ocenia lokalny ewaluator zamiast Gemini.");
+      say("Ocena AI", "Kadrowa otwiera kandydata. Wynik, pewność i uzasadnienie są w karcie.");
       await click("row-ms", 650, 1.18);
       set({ drawer: "ms" }, { drawerIn: 1, countScore: 1 });
       countTo([["bigscore", 0, 91]], 900).catch(() => {});
