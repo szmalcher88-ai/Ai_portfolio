@@ -15,9 +15,9 @@ import { dirname } from "node:path";
 export const SOURCES = {
   erp: "C:/Users/SzMal/ERP_invoice_AI/docs/day-in-the-life/dzien-pracy.html",
   ksiegowanie: "C:/Users/SzMal/Automatyzacja_ksiegowanie/docs/prezentacja/animacja/dzien-ledgerpilot.html",
-  // HR System: the animation made for Portfolio 7 (it has its own camera in embed-bridge.js)
-  hr: "C:/Users/SzMal/Portfolio 7/lines/hr.html",
-  hrBridge: "C:/Users/SzMal/Portfolio 7/lines/embed-bridge.js",
+  // HR System: the animation made for Portfolio 7, frozen in vendor/p7 (Portfolio 7 itself is now edited)
+  hr: new URL("vendor/p7/hr.html", import.meta.url),
+  hrBridge: new URL("vendor/p7/embed-bridge.js", import.meta.url),
 };
 
 // LedgerPilot chapter lengths in animation milliseconds (measured with ?measure, see README).
